@@ -1,0 +1,53 @@
+.form {
+  max-width: 400px; /* Controls form width */
+  width: 100%; /* Fills available space within max-width */
+  padding: 20px;
+  margin: 0 auto; /* Ensures horizontal centering */
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column; /* Ensures the form items stack vertically */
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+}
+
+.submit-btn,
+.clear-btn {
+  width: 48%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.submit-btn {
+  background-color: #28a745;
+}
+
+.submit-btn:hover {
+  background-color: #13862e;
+}
+
+.submit-btn:disabled {
+  background-color: #c3e6cb;
+}
+
+.clear-btn {
+  background-color: #dc3545;
+}
+
+.clear-btn:hover {
+  background-color: #c82333;
+}
