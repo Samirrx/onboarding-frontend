@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
-
+import axios from 'axios';
 import TextInput from "../TextInput/TextInput";
 import "./OnBoarding.css";
 
@@ -14,21 +14,63 @@ const validationSchema = Yup.object({
   bucketName: Yup.string().required("Bucket name is required"),
 });
 
+
 const OnBoarding = () => {
+  const [viewAll,setViewAll]= useState(false)
+
+  const handleClick =async()=>{
+    setViewAll(true)
+    try {
+      const response = await fetch("https://portal.dglide.com/getAllTenant", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to add tenant");
+      }
+  
+      const data = await response.json();
+      console.log("Tenant added successfully:", data);
+      return data;
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+
+
+  const addTenant = async (tenantData) => {
+
+    try {
+      const response = await axios.post("https://portal.dglide.com/addTenant", tenantData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      console.log("Tenant added successfully:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+  
   return (
+    <>
     <Formik
       initialValues={{
-        name: "",
-        tenantId: "",
-        dbUsername: "",
-        dbPassword: "",
-        dbName: "",
-        bucketName: "",
+        name: "asa",
+        tenantId: "212",
+        dbUsername: "sa",
+        dbPassword: "sas",
+        dbName: "asa",
+        bucketName: "sasa",
       }}
       validationSchema={validationSchema}
       onSubmit={(values, { setSubmitting, resetForm }) => {
         setTimeout(() => {
           console.log("Form data:", values);
+          addTenant(values)
           alert(JSON.stringify(values, null, 2));
           setSubmitting(false);
           resetForm(); // Reset form after submit
@@ -90,10 +132,23 @@ const OnBoarding = () => {
             >
               Clear
             </button>
+            <button
+              type="button"
+              onClick={handleClick}
+              className="clear-btn"
+            >
+              View All 
+            </button>
           </div>
         </Form>
       )}
     </Formik>
+    {viewAll && 
+     <div className="">
+
+     </div>
+    }
+    </>
   );
 };
 
