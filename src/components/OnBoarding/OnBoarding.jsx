@@ -151,7 +151,7 @@ const OnBoarding = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="submit-btn"
+                className="submit-btn "
               >
                 {isSubmitting ? "Submitting..." : "Submit"}
               </button>
@@ -162,7 +162,7 @@ const OnBoarding = () => {
               >
                 Clear
               </button>
-              <button type="button" onClick={handleClick} className="clear-btn">
+              <button type="button" onClick={handleClick} className="submit-btn">
                 View All
               </button>
             </div>
