@@ -175,8 +175,7 @@ const OnBoarding = () => {
             dbName: "",
             bucketName: "",
             isActive: true,
-            dbUri:
-              "jdbc:mysql://3.6.229.13:3306/nisha?useSSL=false&requireSSL=false&serverTimezone=UTC",
+            dbUri:"",
             onboardingDate: new Date(),
           }}
           validationSchema={validationSchema}
