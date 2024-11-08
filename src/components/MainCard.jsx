@@ -1,22 +1,13 @@
-import PropTypes from 'prop-types';
-import React from 'react';
+import PropTypes from "prop-types";
+import React from "react";
 
-// material-ui
-import { useTheme } from '@mui/material/styles';
 import {
   Card,
   CardContent,
   CardHeader,
   Divider,
-  Typography
-} from '@mui/material';
-
-// constant
-const headerSX = {
-  '& .MuiCardHeader-action': { mr: 0 }
-};
-
-// ==============================|| CUSTOM MAIN CARD ||============================== //
+  Typography,
+} from "@mui/material";
 
 const MainCard = React.forwardRef(
   (
@@ -25,7 +16,7 @@ const MainCard = React.forwardRef(
       boxShadow,
       children,
       content = true,
-      contentClass = '',
+      contentClass = "",
       contentSX = {},
       darkTitle,
       secondary,
@@ -36,33 +27,22 @@ const MainCard = React.forwardRef(
     },
     ref
   ) => {
-    const theme = useTheme();
-
     return (
       <Card
         ref={ref}
         {...others}
         sx={{
-          border: border ? '1px solid' : 'none',
-          borderColor: '#E0E0E0',
-          boxShadow: '0 2px 14px 0 rgb(32 40 45 / 0%)',
-          // ':hover': {
-          //   boxShadow: boxShadow
-          //     ? shadow ||
-          //       (theme.palette.mode === 'dark'
-          //         ? '0 2px 14px 0 rgb(33 150 243 / 10%)'
-          //         : '0 2px 14px 0 rgb(32 40 45 / 8%)')
-          //     : 'inherit'
-          // },
+          border: border ? "1px solid" : "none",
+          borderColor: "#E0E0E0",
+          boxShadow: "0 2px 14px 0 rgb(32 40 45 / 0%)",
 
-          ...sx
+          ...sx,
         }}
       >
         {/* card header and action */}
         {!darkTitle && title && (
           <CardHeader
-            // sx={headerSX}
-            style={{ fontSize: '1.125rem !important' }}
+            style={{ fontSize: "1.125rem !important" }}
             title={title}
             action={secondary}
           />
@@ -71,7 +51,7 @@ const MainCard = React.forwardRef(
           <CardHeader
             title={
               <Typography
-                sx={{ fontSize: '1.125rem', color: '#121926', fontWeight: 500 }}
+                sx={{ fontSize: "1.125rem", color: "#121926", fontWeight: 500 }}
               >
                 {title}
               </Typography>
@@ -82,9 +62,7 @@ const MainCard = React.forwardRef(
 
         {/* content & header divider */}
         {title && (
-          <Divider
-            sx={{ color: '#212121', borderBottomWidth: 'thick' }}
-          />
+          <Divider sx={{ color: "#212121", borderBottomWidth: "thick" }} />
         )}
 
         {/* card content */}
@@ -110,15 +88,15 @@ MainCard.propTypes = {
   secondary: PropTypes.oneOfType([
     PropTypes.node,
     PropTypes.string,
-    PropTypes.object
+    PropTypes.object,
   ]),
   shadow: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   sx: PropTypes.object,
   title: PropTypes.oneOfType([
     PropTypes.node,
     PropTypes.string,
-    PropTypes.object
-  ])
+    PropTypes.object,
+  ]),
 };
 
 export default MainCard;

@@ -13,6 +13,10 @@ const OnBoarding = () => {
   const [columns, setColumns] = useState([]);
   const [open, setOpen] = useState(false);
 
+  useEffect(() => {
+    getAllUser();
+  }, []);
+
   const getAllUser = async () => {
     try {
       const response = await fetch("https://portal.dglide.com/getAllTenant", {
@@ -44,17 +48,12 @@ const OnBoarding = () => {
           },
         }
       );
-      console.log("Tenant added successfully:", response.data);
       getAllUser();
       return response.data;
     } catch (error) {
       console.error("Error:", error);
     }
   };
-
-  useEffect(() => {
-    getAllUser();
-  }, []);
 
   useEffect(() => {
     if (onBoardingList?.length > 0) {
@@ -81,9 +80,6 @@ const OnBoarding = () => {
     }
   }, [onBoardingList]);
 
-  useEffect(() => {
-    getAllUser();
-  }, []);
   return (
     <>
       <div className="p-3">
