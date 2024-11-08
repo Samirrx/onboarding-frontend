@@ -5,6 +5,9 @@ import axios from "axios";
 import TextInput from "../TextInput/TextInput";
 import "./OnBoarding.css";
 import { DataGrid } from "@mui/x-data-grid";
+import MainCard from "../MainCard";
+import { Box, Drawer, Fab } from "@mui/material";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
 
 const validationSchema = Yup.object({
   name: Yup.string().required("First name is required"),
@@ -16,12 +19,11 @@ const validationSchema = Yup.object({
 });
 
 const OnBoarding = () => {
-  const [viewAll, setViewAll] = useState(false);
   const [onBoardingList, setOnBoardingList] = useState([]);
   const [columns, setColumns] = useState([]);
+  const [open, setOpen] = useState(false);
 
-  const handleClick = async () => {
-    setViewAll(true);
+  const getAllUser = async () => {
     try {
       const response = await fetch("https://portal.dglide.com/getAllTenant", {
         method: "GET",
@@ -54,13 +56,17 @@ const OnBoarding = () => {
         }
       );
       console.log("Tenant added successfully:", response.data);
-
+      getAllUser();
       return response.data;
     } catch (error) {
       console.error("Error:", error);
     }
   };
-  console.log(onBoardingList);
+
+  useEffect(() => {
+    getAllUser();
+  }, []);
+
   useEffect(() => {
     if (onBoardingList?.length > 0) {
       const keysData = Object.keys(onBoardingList[0]);
@@ -85,92 +91,49 @@ const OnBoarding = () => {
       setColumns(headers);
     }
   }, [onBoardingList]);
+
+  const closeDrawer = () => {
+    setOpen(false);
+  };
+  useEffect(() => {
+    getAllUser();
+  }, []);
   return (
     <>
-      <Formik
-        initialValues={{
-          name: "asa",
-          tenantId: "212",
-          dbUsername: "sa",
-          dbPassword: "sas",
-          dbName: "asa",
-          bucketName: "sasa",
-        }}
-        validationSchema={validationSchema}
-        onSubmit={(values, { setSubmitting, resetForm }) => {
-          setTimeout(() => {
-            console.log("Form data:", values);
-            addTenant(values);
-            alert(JSON.stringify(values, null, 2));
-            setSubmitting(false);
-            resetForm(); // Reset form after submit
-          }, 400);
-        }}
-      >
-        {({ isSubmitting, resetForm }) => (
-          <Form className="form">
-            <h2>Onboarding Information</h2>
-            <TextInput
-              label="Name *"
-              name="name"
-              type="text"
-              placeholder="Enter your name"
-            />
-            <TextInput
-              label="Tenant Id *"
-              name="tenantId"
-              type="text"
-              placeholder="Enter your Tenant Id"
-            />
-            <TextInput
-              label="Database username *"
-              name="dbUsername"
-              type="text"
-              placeholder="Enter your Database username"
-            />
-            <TextInput
-              label="Database password *"
-              name="dbPassword"
-              type="password"
-              placeholder="Enter your Database password"
-            />
-            <TextInput
-              label="Database name *"
-              name="dbName"
-              type="text"
-              placeholder="Enter your Database name"
-            />
-            <TextInput
-              label="Bucket name *"
-              name="bucketName"
-              type="text"
-              placeholder="Enter your Bucket name"
-            />
-
-            <div className="button-group">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="submit-btn "
+      <div className="p-3">
+        <MainCard
+          sx={{
+            width: "100%",
+            backgroundColor: "primary",
+            // currentTheme === "Dark" ? colors.darkLevel2 : colors.white,
+            "& .MuiCardContent-root": {
+              height: "calc(100vh - 167px)",
+              padding: "2px",
+            },
+          }}
+          title={
+            <Box display="flex" justifyContent="flex-end">
+              <Fab
+                size="small"
+                sx={{
+                  bgcolor: "primary.main",
+                  color: "white",
+                  "&:hover": {
+                    bgcolor: "primary.main",
+                    color: "white",
+                  },
+                  width: "35px",
+                  height: "35px",
+                  borderRadius: "8px",
+                  minHeight: 0,
+                }}
+                onClick={() => setOpen(true)}
               >
-                {isSubmitting ? "Submitting..." : "Submit"}
-              </button>
-              <button
-                type="button"
-                onClick={() => resetForm()}
-                className="clear-btn"
-              >
-                Clear
-              </button>
-              <button type="button" onClick={handleClick} className="submit-btn">
-                View All
-              </button>
-            </div>
-          </Form>
-        )}
-      </Formik>
-      {viewAll && (
-        <div className="p-3">
+                <AddRoundedIcon fontSize="small" />
+              </Fab>
+            </Box>
+          }
+        >
           <DataGrid
             rows={onBoardingList}
             columns={columns}
@@ -178,8 +141,122 @@ const OnBoarding = () => {
             rowsPerPageOptions={[5, 10, 20]}
             disableSelectionOnClick
           />
-        </div>
-      )}
+        </MainCard>
+      </div>
+      <Drawer
+        open={open}
+        onClose={closeDrawer}
+        sx={{
+          ml: open ? 3 : 0,
+          flexShrink: 0,
+          zIndex: 1200,
+          overflowX: "hidden",
+          width: { xs: 600, md: 600 },
+          transition: "width 0.6s ease",
+          "& .MuiDrawer-paper": {
+            height: "calc(100vh - 3px)",
+            width: 600,
+            position: "fixed",
+            border: "none",
+            borderRadius: "0px",
+            transition: "transform 0.6s ease",
+          },
+        }}
+        variant="temporary"
+        anchor="right"
+        ModalProps={{ keepMounted: true }}
+      >
+        <Formik
+          initialValues={{
+            name: "",
+            tenantId: "",
+            dbUsername: "",
+            dbPassword: "",
+            dbName: "",
+            bucketName: "",
+            isActive: true,
+            dbUri:
+              "jdbc:mysql://3.6.229.13:3306/nisha?useSSL=false&requireSSL=false&serverTimezone=UTC",
+            onboardingDate: new Date(),
+          }}
+          validationSchema={validationSchema}
+          onSubmit={(values, { setSubmitting, resetForm }) => {
+            setTimeout(() => {
+              addTenant(values);
+              setSubmitting(false);
+              resetForm(); // Reset form after submit
+              setOpen(false);
+            }, 400);
+          }}
+        >
+          {({ isSubmitting, resetForm, setFieldValue }) => (
+            <Form className="form">
+              <h2>Onboarding Information</h2>
+              <TextInput
+                label="Name *"
+                name="name"
+                type="text"
+                placeholder="Enter your name"
+              />
+              <TextInput
+                label="Tenant Id *"
+                name="tenantId"
+                type="text"
+                placeholder="Enter your Tenant Id"
+              />
+              <TextInput
+                label="Database username *"
+                name="dbUsername"
+                type="text"
+                placeholder="Enter your Database username"
+              />
+              <TextInput
+                label="Database password *"
+                name="dbPassword"
+                type="password"
+                placeholder="Enter your Database password"
+              />
+              <TextInput
+                label="Database name *"
+                name="dbName"
+                type="text"
+                onChange={(e) => {
+                  const dbName = e.target.value;
+                  setFieldValue("dbName", dbName);
+                  setFieldValue(
+                    "dbUri",
+                    `jdbc:mysql://3.6.229.13:3306/${dbName}?useSSL=false&requireSSL=false&serverTimezone=UTC`
+                  );
+                }}
+                placeholder="Enter your Database name"
+              />
+              <TextInput
+                label="Bucket name *"
+                name="bucketName"
+                type="text"
+                placeholder="Enter your Bucket name"
+              />
+
+              <div className="button-group">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="submit-btn "
+                >
+                  {isSubmitting ? "Submitting..." : "Submit"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => resetForm()}
+                  className="clear-btn"
+                >
+                  Clear
+                </button>
+              </div>
+            </Form>
+          )}
+        </Formik>
+      </Drawer>
     </>
   );
 };
