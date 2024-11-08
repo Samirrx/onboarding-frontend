@@ -10,11 +10,7 @@
   flex-direction: column; /* Ensures the form items stack vertically */
 }
 
-h2 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #333;
-}
+
 
 .button-group {
   display: flex;
@@ -23,7 +19,6 @@ h2 {
 
 .submit-btn,
 .clear-btn {
-  width: 48%;
   padding: 10px;
   border: none;
   border-radius: 8px;

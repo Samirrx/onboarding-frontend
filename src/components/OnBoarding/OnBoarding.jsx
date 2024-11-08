@@ -6,7 +6,7 @@ import TextInput from "../TextInput/TextInput";
 import "./OnBoarding.css";
 import { DataGrid } from "@mui/x-data-grid";
 import MainCard from "../MainCard";
-import { Box, Drawer, Fab } from "@mui/material";
+import { Box, Drawer, Fab, Typography } from "@mui/material";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 
 const validationSchema = Yup.object({
@@ -112,7 +112,16 @@ const OnBoarding = () => {
             },
           }}
           title={
-            <Box display="flex" justifyContent="flex-end">
+            <Box display="flex"sx={{ justifyContent: "space-between" }}>
+              <Typography
+                sx={{
+                  fontSize: "1.25rem",
+                  color: "#616161",
+                  fontWeight: 600,
+                }}
+              >
+                Onboarding
+              </Typography>
               <Fab
                 size="small"
                 sx={{
@@ -175,7 +184,7 @@ const OnBoarding = () => {
             dbName: "",
             bucketName: "",
             isActive: true,
-            dbUri:"",
+            dbUri: "",
             onboardingDate: new Date(),
           }}
           validationSchema={validationSchema}
@@ -189,70 +198,93 @@ const OnBoarding = () => {
           }}
         >
           {({ isSubmitting, resetForm, setFieldValue }) => (
-            <Form className="form">
-              <h2>Onboarding Information</h2>
-              <TextInput
-                label="Name *"
-                name="name"
-                type="text"
-                placeholder="Enter your name"
-              />
-              <TextInput
-                label="Tenant Id *"
-                name="tenantId"
-                type="text"
-                placeholder="Enter your Tenant Id"
-              />
-              <TextInput
-                label="Database username *"
-                name="dbUsername"
-                type="text"
-                placeholder="Enter your Database username"
-              />
-              <TextInput
-                label="Database password *"
-                name="dbPassword"
-                type="password"
-                placeholder="Enter your Database password"
-              />
-              <TextInput
-                label="Database name *"
-                name="dbName"
-                type="text"
-                onChange={(e) => {
-                  const dbName = e.target.value;
-                  setFieldValue("dbName", dbName);
-                  setFieldValue(
-                    "dbUri",
-                    `jdbc:mysql://3.6.229.13:3306/${dbName}?useSSL=false&requireSSL=false&serverTimezone=UTC`
-                  );
-                }}
-                placeholder="Enter your Database name"
-              />
-              <TextInput
-                label="Bucket name *"
-                name="bucketName"
-                type="text"
-                placeholder="Enter your Bucket name"
-              />
-
-              <div className="button-group">
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="submit-btn "
-                >
-                  {isSubmitting ? "Submitting..." : "Submit"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => resetForm()}
-                  className="clear-btn"
-                >
-                  Clear
-                </button>
-              </div>
-            </Form>
+            <MainCard
+              sx={{
+                width: "100%",
+                backgroundColor: "primary",
+                "& .MuiCardContent-root": {
+                  height: "calc(100vh - 167px)",
+                  padding: "2px",
+                },
+              }}
+              title={
+                <Box display="flex" sx={{ justifyContent: "space-between" }}>
+                  <Typography
+                    sx={{
+                      fontSize: "1.25rem",
+                      color: "#616161",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Onboarding
+                  </Typography>
+                  <Box display="flex" justifyContent="flex-end">
+                    <button
+                      type="submit"
+                      form="onboardingForm"
+                      disabled={isSubmitting}
+                      className="submit-btn "
+                    >
+                      {isSubmitting ? "Submitting..." : "Submit"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => resetForm()}
+                      className="clear-btn"
+                    >
+                      Clear
+                    </button>
+                  </Box>
+                </Box>
+              }
+            >
+              <Form className="form" id="onboardingForm">
+                <TextInput
+                  label="Name *"
+                  name="name"
+                  type="text"
+                  placeholder="Enter your name"
+                />
+                <TextInput
+                  label="Tenant Id *"
+                  name="tenantId"
+                  type="text"
+                  placeholder="Enter your Tenant Id"
+                />
+                <TextInput
+                  label="Database username *"
+                  name="dbUsername"
+                  type="text"
+                  placeholder="Enter your Database username"
+                />
+                <TextInput
+                  label="Database password *"
+                  name="dbPassword"
+                  type="password"
+                  placeholder="Enter your Database password"
+                />
+                <TextInput
+                  label="Database name *"
+                  name="dbName"
+                  type="text"
+                  onChange={(e) => {
+                    const dbName = e.target.value;
+                    setFieldValue("dbName", dbName);
+                    setFieldValue(
+                      "dbUri",
+                      `jdbc:mysql://3.6.229.13:3306/${dbName}?useSSL=false&requireSSL=false&serverTimezone=UTC`
+                    );
+                  }}
+                  placeholder="Enter your Database name"
+                />
+                <TextInput
+                  label="Bucket name *"
+                  name="bucketName"
+                  type="text"
+                  placeholder="Enter your Bucket name"
+                />
+              </Form>
+            </MainCard>
           )}
         </Formik>
       </Drawer>
