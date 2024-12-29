@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
+
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import { Box, Fab } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
 import axios from "axios";
 
-import "./OnBoarding.css";
-import { DataGrid } from "@mui/x-data-grid";
 import MainCard from "../MainCard";
-import { Box, Fab, Typography } from "@mui/material";
-import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import "./OnBoarding.css";
 import { OnboardingModal } from "./OnboardingModal";
 
 const OnBoarding = () => {
@@ -71,7 +72,7 @@ const OnBoarding = () => {
         )
         .map((key) => {
           return {
-            headerName: key.charAt(0).toUpperCase() + key.slice(1),
+            headerName: key.toUpperCase(),
             field: key,
             flex: 1,
           };
@@ -93,16 +94,15 @@ const OnBoarding = () => {
             },
           }}
           title={
-            <Box display="flex" sx={{ justifyContent: "space-between" }}>
-              <Typography
-                sx={{
-                  fontSize: "1.25rem",
-                  color: "#616161",
-                  fontWeight: 600,
-                }}
-              >
-                Onboarding
-              </Typography>
+            <Box
+              display="flex"
+              sx={{ justifyContent: "space-between", alignItems: "center" }}
+            >
+              <img
+                src="https://d3bzo30ykdobe9.cloudfront.net/logo/logo.svg"
+                style={{ height: 70, width: 70 }}
+                alt="logo"
+              ></img>
               <Fab
                 size="small"
                 sx={{

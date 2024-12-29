@@ -42,7 +42,7 @@ const MainCard = React.forwardRef(
         {/* card header and action */}
         {!darkTitle && title && (
           <CardHeader
-            style={{ fontSize: "1.125rem !important" }}
+            style={{ fontSize: "1.125rem !important", padding: "0 16px" }}
             title={title}
             action={secondary}
           />
