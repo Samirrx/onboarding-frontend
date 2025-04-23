@@ -59,8 +59,11 @@ const Login = () => {
     return () => clearInterval(timer);
   }, []);
 
+  if (isTwoStepVerfication) {
+    return <CodeVerification />;
+  }
   return (
-    <div className="flex min-h-screen flex-col lg:flex-row w-full">
+    <div className="flex min-h-screen flex-col lg:flex-row">
       {/* Left side - Image Slider and Logo (hidden on mobile) */}
       <div className="relative hidden lg:block lg:w-1/2">
         <BackgroundPattern2>

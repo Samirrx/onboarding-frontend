@@ -28,7 +28,7 @@ import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import OpsBeatLogo from '../../assets/logo/OpsBeat-Logo.svg';
-// import { userLogin } from '../../redux/slices/authSlice';
+import { userLogin } from '@/utils/axios';
 
 const hostName = window.location.hostname;
 
@@ -36,7 +36,6 @@ const hostName = window.location.hostname;
 const loginSchema = z.object({
   username: z.string().min(1, 'Email Id is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
-  tenantid: z.string().optional().nullable(),
   persistent: z.boolean()
 });
 
@@ -75,24 +74,24 @@ function AuthLogin() {
   const onSubmit = async (data: LoginFormValues) => {
     setLoading(true);
     setErrorMessage('');
-    // try {
-    //   const response = await dispatch(userLogin(data));
+    try {
+      const response = await userLogin(data);
 
-    //   if (!response.payload || response.payload.statusCode === 400) {
-    //     setErrorMessage('Incorrect Email Id or password.');
-    //     return;
-    //   }
+      if (!response.payload || response.payload.statusCode === 400) {
+        setErrorMessage('Incorrect Email Id or password.');
+        return;
+      }
 
-    //   if (!response.payload || response.payload.statusCode !== 200) {
-    //     setErrorMessage(response.payload?.message);
-    //     return;
-    //   }
-    // } catch (error) {
-    //   console.error('Login Error:', error);
-    //   setErrorMessage('An unexpected error occurred. Please try again.');
-    // } finally {
-    //   setLoading(false);
-    // }
+      if (!response.payload || response.payload.statusCode !== 200) {
+        setErrorMessage(response.payload?.message);
+        return;
+      }
+    } catch (error) {
+      console.error('Login Error:', error);
+      setErrorMessage('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -124,7 +123,7 @@ function AuthLogin() {
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit((data) => {
-                // console.log('Form Data:', data);
+                console.log('Form Data:', data);
                 onSubmit(data);
               })}
               className="space-y-4"
