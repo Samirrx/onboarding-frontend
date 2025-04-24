@@ -14,7 +14,6 @@ const AppRoutes = () => {
       <Route path="/" element={<TenantList />} />
       <Route path="/onboarding-flow" element={<OnboardingFlow />} />
       <Route path="/login" element={<Login />} />
-      
     </Routes>
   );
 };

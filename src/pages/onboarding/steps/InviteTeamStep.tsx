@@ -67,7 +67,7 @@ export function InviteTeamStep({
 
     const updatedMembers = [...teamMembers, newMember];
     setTeamMembers(updatedMembers);
-    updateFormData({ teamMembers: updatedMembers });
+    updateFormData({ teamMembers: email });
 
     // Reset form
     setEmail('');
@@ -88,9 +88,11 @@ export function InviteTeamStep({
   return (
     <div className="space-y-6 py-6">
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold tracking-tight text-justify">Invite Your Team</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-justify">
+          Invite Your Team
+        </h2>
         <p className="text-muted-foreground text-justify">
-        Add team member to collaborate with you.
+          Add team member to collaborate with you.
         </p>
       </div>
 
@@ -114,7 +116,11 @@ export function InviteTeamStep({
 
             <div className="space-y-2">
               <Label htmlFor="role">Role</Label>
-              <Select value={role} onValueChange={setRole} disabled={teamMembers.length >= 1}>
+              <Select
+                value={role}
+                onValueChange={setRole}
+                disabled={teamMembers.length >= 1}
+              >
                 <SelectTrigger id="role" className="w-[140px]">
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
@@ -165,7 +171,7 @@ export function InviteTeamStep({
                         {member.email.charAt(0).toUpperCase()}
                       </span>
                     </div>
-                    <div>
+                    <div className="flex flex-col items-start">
                       <p className="text-sm font-medium">{member.email}</p>
                       <Badge variant="outline" className="mt-1">
                         {member.role.charAt(0).toUpperCase() +

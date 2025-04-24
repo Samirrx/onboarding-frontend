@@ -75,13 +75,18 @@ function AuthLogin() {
     setErrorMessage('');
     try {
       const response = await userLogin(data);
+      if (response?.status) {
+        navigate('/');
+        notify.success('Login successful');
+      }
+
       console.log('Login Response:', response);
-      if ( response.statusCode === 400) {
+      if (response.statusCode === 400) {
         setErrorMessage('Incorrect Email Id or password.');
         return;
       }
 
-      if ( response.statusCode !== 200) {
+      if (response.statusCode !== 200) {
         setErrorMessage(response?.message);
         return;
       }
@@ -112,9 +117,11 @@ function AuthLogin() {
         </div>
       )}
       <Card className="w-full max-w-[350px]">
-        <CardHeader>
-          <CardTitle>Login</CardTitle>
-          <CardDescription>Choose your preferred login method</CardDescription>
+        <CardHeader className="">
+          <CardTitle className="flex">Login</CardTitle>
+          <CardDescription className="flex">
+            Choose your preferred login method
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Google Login Button */}
@@ -125,7 +132,7 @@ function AuthLogin() {
                 console.log('Form Data:', data);
                 onSubmit(data);
               })}
-              className="space-y-4"
+              className="space-y-6"
             >
               {/* Username Field */}
               <FormField

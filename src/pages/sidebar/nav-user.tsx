@@ -27,7 +27,6 @@ import {
 } from '@/components/ui/sidebar';
 import { userLogout } from '@/lib/logout';
 
-
 export function NavUser({
   user
 }: {
@@ -78,31 +77,8 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Sparkles />
-                Upgrade to Pro
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-          //  onClick={userLogout}
-            >
+
+            <DropdownMenuItem onClick={userLogout}>
               <LogOut />
               Log out
             </DropdownMenuItem>

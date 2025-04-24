@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { getTimezone, getTimezoneOffset } from '../utils/helpers';
 import { notify } from '../hooks/toastUtils';
-
 const getApiEndpoint = () => {
   return 'https://onboarding-api.dglide.com';
 };
@@ -85,11 +84,14 @@ const makeHttpCall = async ({ headers = {}, ...options }) => {
       const response = await axios({
         method: 'POST',
         url: refreshTokenURL,
-        data: { token: tokenDetail?.token },
+        data: { token: tokenDetail?.token }
       });
 
       if (response.data.statusCode === 200) {
-        localStorage.setItem('auth-token', JSON.stringify(response.data.result));
+        localStorage.setItem(
+          'auth-token',
+          JSON.stringify(response.data.result)
+        );
       } else {
         localStorage.clear();
         window.location.href = '/login';
@@ -98,7 +100,10 @@ const makeHttpCall = async ({ headers = {}, ...options }) => {
     }
 
     if (!options.url.startsWith('http')) {
-      options.url = `${API_ENDPOINT.replace(/\/$/, '')}/${options.url.replace(/^\//, '')}`;
+      options.url = `${API_ENDPOINT.replace(/\/$/, '')}/${options.url.replace(
+        /^\//,
+        ''
+      )}`;
     }
 
     console.log('📡 Final Request URL:', options.url);
@@ -124,31 +129,31 @@ export const userLogin = async (credentials) => {
       method: 'POST',
       url: '/user/login',
       data: credentials,
-      headers: { username: credentials?.username },
+      headers: { username: credentials?.username }
     });
-
 
     if (response.status) {
       localStorage.setItem(
-        "auth-token",
+        'auth-token',
         JSON.stringify(response.result.tokenDetail)
       );
-      window.location.href = "/";
-      window.location.reload();
+
+      // setTimeout(() => {
+      //   window.location.reload();
+      // }, 1000);
+
+      // window.location.reload();
     } else {
-      notify.error(response?.message || "Oops! Something went wrong");
+      notify.error(response?.message || 'Oops! Something went wrong');
     }
 
     return response;
   } catch (error) {
-    notify.error("Login failed. Please try again.");
-    console.error("Login error:", error);
+    notify.error('Login failed. Please try again.');
+    console.error('Login error:', error);
     return null;
   }
 };
-
-
-
 
 // export const userLogin = async (data) => {
 
@@ -162,8 +167,6 @@ export const userLogin = async (credentials) => {
 //   } else {
 //     notify.error(data?.message || "Oops! Something went wrong");
 //   }
-
-
 
 //   return await makeHttpCall({
 //     method: 'POST',

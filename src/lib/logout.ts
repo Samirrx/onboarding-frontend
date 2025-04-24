@@ -1,6 +1,4 @@
 export const userLogout = () => {
-    localStorage.removeItem('auth-token');
-    sessionStorage.clear(); 
-    window.location.replace('/login'); 
-  };
-  
+  localStorage.removeItem('auth-token');
+  window.location.replace('/login');
+};

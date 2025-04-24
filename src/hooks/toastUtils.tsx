@@ -3,43 +3,35 @@ import { toast, ToastContainer, ToastOptions } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const defaultOptions: ToastOptions = {
-  position: 'bottom-center',
+  position: 'bottom-right',
   autoClose: 3000,
-  hideProgressBar: true,
+  hideProgressBar: false,
   closeOnClick: true,
   pauseOnHover: true,
   draggable: true,
-  theme: 'colored'
+  theme: 'light'
 };
 
 export const notify = {
   success: (message: string, options?: ToastOptions) =>
     toast.success(message, {
       ...defaultOptions,
-      ...options,
-      className: 'custom-toast-success',
-      progressClassName: 'custom-progress-success'
+      ...options
     }),
   error: (message: string, options?: ToastOptions) =>
     toast.error(message, {
       ...defaultOptions,
-      ...options,
-      className: 'custom-toast-error',
-      progressClassName: 'custom-progress-error'
+      ...options
     }),
   warning: (message: string, options?: ToastOptions) =>
     toast.warn(message, {
       ...defaultOptions,
-      ...options,
-      className: 'custom-toast-warning',
-      progressClassName: 'custom-progress-warning'
+      ...options
     }),
   info: (message: string, options?: ToastOptions) =>
     toast.info(message, {
       ...defaultOptions,
-      ...options,
-      className: 'custom-toast-info',
-      progressClassName: 'custom-progress-info'
+      ...options
     })
 };
 
