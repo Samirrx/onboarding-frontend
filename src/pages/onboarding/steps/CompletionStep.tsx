@@ -84,7 +84,7 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
               {formData.size}
             </dd>
           </div>
-          {console.log('Form Data:', formData)}
+
           <div className="grid grid-cols-3 gap-1">
             <dt className="text-muted-foreground text-justify">Environment:</dt>
             <dd className="col-span-2 font-medium text-justify">

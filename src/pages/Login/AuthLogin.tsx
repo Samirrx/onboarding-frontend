@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-import Logo from '@/assets/logo/logo.svg';
 import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
@@ -21,7 +19,6 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
 import { notify } from '@/hooks/toastUtils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
@@ -230,16 +227,6 @@ function AuthLogin() {
             </form>
           </Form>
         </CardContent>
-        {/* <CardFooter className="flex flex-col space-y-4">
-          <div className="flex w-full justify-between text-sm">
-            <Link
-              to="/forgot-password"
-              
-            >
-              Forgot password?
-            </Link>
-          </div>
-        </CardFooter> */}
       </Card>
     </div>
   );

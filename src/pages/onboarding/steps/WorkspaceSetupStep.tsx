@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 
 interface WorkspaceSetupStepProps {
   formData: any;
@@ -11,62 +11,67 @@ interface WorkspaceSetupStepProps {
   onBack: () => void;
 }
 
-export function WorkspaceSetupStep({ formData, updateFormData, onNext, onBack }: WorkspaceSetupStepProps) {
+export function WorkspaceSetupStep({
+  formData,
+  updateFormData,
+  onNext,
+  onBack
+}: WorkspaceSetupStepProps) {
   const [preferences, setPreferences] = useState({
-    theme: formData.workspacePreferences?.theme || "light",
+    theme: formData.workspacePreferences?.theme || 'light',
     notifications: formData.workspacePreferences?.notifications !== false,
-    modules: formData.workspacePreferences?.modules || [],
-  })
+    modules: formData.workspacePreferences?.modules || []
+  });
 
   const modules = [
     {
-      id: "CRM",
-      name: "CRM",
+      id: 'CRM',
+      name: 'CRM',
       description:
-        "A centralized platform for managing customer relationships, and activities.",
+        'A centralized platform for managing customer relationships, and activities.'
     },
     {
-      id: "FSM",
-      name: "FSM",
+      id: 'FSM',
+      name: 'FSM',
       description:
-        "Efficiently manage field teams, job assignments, and on-site service tasks.",
+        'Efficiently manage field teams, job assignments, and on-site service tasks.'
     },
     {
-      id: "ITSM",
-      name: "ITSM",
+      id: 'ITSM',
+      name: 'ITSM',
       description:
-        "Track incidents, and automate IT workflows to enhance service delivery.",
+        'Track incidents, and automate IT workflows to enhance service delivery.'
     },
     {
-      id: "Helpdesk",
-      name: "Helpdesk ",
+      id: 'Helpdesk',
+      name: 'Helpdesk ',
       description:
-        "Manage support requests, assign tickets, and ensure timely resolution.",
+        'Manage support requests, assign tickets, and ensure timely resolution.'
     },
     {
-      id: "assetManagement",
-      name: "Asset Management",
+      id: 'assetManagement',
+      name: 'Asset Management',
       description:
-        "Track, manage, and maintain physical and digital assets across their lifecycle.",
+        'Track, manage, and maintain physical and digital assets across their lifecycle.'
     },
     {
-      id: "HRMS",
-      name: "HRMS",
+      id: 'HRMS',
+      name: 'HRMS',
       description:
-        "Managing employee data, tracking performance, and automating.",
+        'Managing employee data, tracking performance, and automating.'
     },
     {
-      id: "attendanceManagement",
-      name: "Attendance Management",
+      id: 'attendanceManagement',
+      name: 'Attendance Management',
       description:
-        "Track employee check-ins, working hours, leaves, and absences in real time.",
+        'Track employee check-ins, working hours, leaves, and absences in real time.'
     },
     {
-      id: "debtManagement",
-      name: "Debt Management",
+      id: 'debtManagement',
+      name: 'Debt Management',
       description:
-        "Keep records of debts, automate repayment schedules, reduce financial risk.",
-    },
+        'Keep records of debts, automate repayment schedules, reduce financial risk.'
+    }
   ];
 
   const handleModuleToggle = (moduleId: string) => {
@@ -78,7 +83,7 @@ export function WorkspaceSetupStep({ formData, updateFormData, onNext, onBack }:
 
       return {
         ...prev,
-        modules: updatedModules,
+        modules: updatedModules
       };
     });
   };
@@ -88,9 +93,9 @@ export function WorkspaceSetupStep({ formData, updateFormData, onNext, onBack }:
       workspacePreferences: {
         theme: preferences.theme,
         notifications: preferences.notifications,
-        modules: preferences.modules,
+        modules: preferences.modules
       },
-      modules: preferences.modules,
+      modules: preferences.modules
     });
     onNext();
   };
@@ -98,7 +103,9 @@ export function WorkspaceSetupStep({ formData, updateFormData, onNext, onBack }:
   return (
     <div className="space-y-6 py-6">
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold tracking-tight text-justify">Workspace Setup</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-justify">
+          Workspace Setup
+        </h2>
         <p className="text-muted-foreground text-justify">
           Customize your workspace to fit your team's needs.
         </p>
@@ -117,16 +124,16 @@ export function WorkspaceSetupStep({ formData, updateFormData, onNext, onBack }:
                 <div
                   className={`flex items-start space-x-3 rounded-md border p-4 cursor-pointer transition-colors ${
                     preferences.modules.includes(module.id)
-                      ? "border-primary bg-primary/5"
-                      : "border-border hover:bg-accent"
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border hover:bg-accent'
                   }`}
                   onClick={() => handleModuleToggle(module.id)}
                 >
                   <div
                     className={`mt-0.5 rounded-full p-1 ${
                       preferences.modules.includes(module.id)
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground"
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground'
                     }`}
                   >
                     <Check className="h-4 w-4" />

@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { notify } from '@/hooks/toastUtils';
+
 import { fetchTenantList } from '@/services/controllers/onboarding';
 
 interface Tenant {
