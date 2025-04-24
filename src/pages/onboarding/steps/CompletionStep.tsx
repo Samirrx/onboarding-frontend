@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, CheckCircle2 } from 'lucide-react';
-import { addTenant } from '@/services/controllers/onboarding';
-import { notify } from '@/hooks/toastUtils';
-import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, CheckCircle2 } from "lucide-react";
+import { addTenant } from "@/services/controllers/onboarding";
+import { notify } from "@/hooks/toastUtils";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 interface CompletionStepProps {
   formData: any;
   onBack: () => void;
@@ -19,15 +19,15 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
     try {
       const response = await addTenant(formData);
       if (response?.status) {
-        navigate('/');
-        notify.success('Please wait... Creating new tenant', {
-          autoClose: 5000
+        navigate("/");
+        notify.success("Please wait... Creating new tenant", {
+          autoClose: 5000,
         });
         setLoading(false);
       }
-      console.log('Tenant added successfully:', response);
+      console.log("Tenant added successfully:", response);
     } catch (error) {
-      console.error('Error adding tenant:', error);
+      console.error("Error adding tenant:", error);
       setLoading(false);
     }
   };
@@ -46,6 +46,20 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
       <div className="bg-slate-50 rounded-lg p-6 mt-8">
         <h3 className="font-medium mb-4 text-justify">Company Summary</h3>
         <dl className="grid gap-3 text-sm">
+          <div className="grid grid-cols-3 gap-1">
+            <dt className="text-muted-foreground text-justify">Environment:</dt>
+            <dd className="col-span-2 font-medium text-justify">
+              {formData.environment}
+            </dd>
+          </div>
+          <div className="grid grid-cols-3 gap-1">
+            <dt className="text-muted-foreground text-justify">
+              Instance Type
+            </dt>
+            <dd className="col-span-2 font-medium text-justify">
+              {formData.instanceType}
+            </dd>
+          </div>
           <div className="grid grid-cols-3 gap-1">
             <dt className="text-muted-foreground text-justify">
               Company Name:
@@ -84,13 +98,6 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
               {formData.size}
             </dd>
           </div>
-
-          <div className="grid grid-cols-3 gap-1">
-            <dt className="text-muted-foreground text-justify">Environment:</dt>
-            <dd className="col-span-2 font-medium text-justify">
-              {formData.environment}
-            </dd>
-          </div>
           <div className="grid grid-cols-3 gap-1">
             <dt className="text-muted-foreground text-justify">
               Team Members:
@@ -109,7 +116,7 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
                   (module: string) =>
                     module.charAt(0).toUpperCase() + module.slice(1)
                 )
-                .join(', ')}
+                .join(", ")}
             </dd>
           </div>
         </dl>
@@ -119,7 +126,7 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
           <ArrowLeft className="mr-2 h-4 w-4" /> Back to Settings
         </Button>
         <Button onClick={() => submitTenant()} disabled={loading}>
-          {`Onboard Tenant ${loading ? '...' : ''}`}
+          {`Onboard Tenant ${loading ? "..." : ""}`}
         </Button>
       </div>
     </div>

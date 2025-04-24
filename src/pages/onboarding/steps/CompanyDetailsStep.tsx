@@ -36,6 +36,7 @@ export function CompanyDetailsStep({
   const [environment, setEnvironment] = useState(formData.environment || "");
   const [email, setEmail] = useState(formData.email || "");
   const [phoneNumber, setPhoneNumber] = useState(formData.phoneNumber || "");
+  const [instanceType, setInstanceType] = useState(formData.instanceType || "");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [canContinue, setCanContinue] = useState(false);
 
@@ -64,6 +65,9 @@ export function CompanyDetailsStep({
     if (!environment) {
       newErrors.environment = "Please select an environment";
     }
+    if(!instanceType){
+      newErrors.instanceType = "Please select an instance type";
+    }
     if (!email.trim()) {
       newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(email)) {
@@ -84,11 +88,12 @@ export function CompanyDetailsStep({
       industry &&
       size &&
       environment &&
+      instanceType &&
       email.trim() &&
       /^\S+@\S+\.\S+$/.test(email) &&
       phoneNumber.trim();
     setCanContinue(!!isValid);
-  }, [companyName, industry, environment, size, email, phoneNumber]);
+  }, [companyName, industry, environment, size, instanceType, email, phoneNumber]);
 
   const handleSubmit = () => {
     if (validateForm()) {
@@ -99,6 +104,7 @@ export function CompanyDetailsStep({
         environment,
         email,
         phoneNumber,
+        instanceType,
       });
       onNext();
     }
@@ -152,6 +158,48 @@ export function CompanyDetailsStep({
             Upload your company logo (optional)
           </p>
         </div>
+
+        <div className="space-y-2">
+        <Label htmlFor="environment">
+          Environment {<span className="text-red-500">*</span>}
+        </Label>
+        <Select value={environment} onValueChange={setEnvironment}>
+          <SelectTrigger
+            id="environment"
+            className={errors.environment ? "border-red-500 w-full" : "w-full"}
+          >
+            <SelectValue placeholder="Select environment" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Dev">Dev</SelectItem>
+            <SelectItem value="Preprod">Preprod</SelectItem>
+            <SelectItem value="App">App</SelectItem>
+          </SelectContent>
+        </Select>
+        {errors.environment && (
+          <p className="text-sm text-red-500">{errors.environment}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="company-name">
+          Instance Type{<span className="text-red-500">*</span>}
+        </Label>
+        <Select value={instanceType} onValueChange={setInstanceType}>
+          <SelectTrigger
+            id="instanceType"
+            className={errors.instanceType ? "border-red-500 w-full" : "w-full"}
+          >
+            <SelectValue placeholder="Select instance type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Free">Free</SelectItem>
+            <SelectItem value="Trial">Trial</SelectItem>
+            <SelectItem value="Paid">Paid</SelectItem>
+            <SelectItem value="Poc">POC</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
         <div className="space-y-2">
           <Label htmlFor="company-name">
@@ -261,28 +309,6 @@ export function CompanyDetailsStep({
           </SelectContent>
         </Select>
         {errors.size && <p className="text-sm text-red-500">{errors.size}</p>}
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="environment">
-          Environment {<span className="text-red-500">*</span>}
-        </Label>
-        <Select value={environment} onValueChange={setEnvironment}>
-          <SelectTrigger
-            id="environment"
-            className={errors.environment ? "border-red-500 w-full" : "w-full"}
-          >
-            <SelectValue placeholder="Select environment" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Dev">Dev</SelectItem>
-            <SelectItem value="Preprod">Preprod</SelectItem>
-            <SelectItem value="App">App</SelectItem>
-          </SelectContent>
-        </Select>
-        {errors.environment && (
-          <p className="text-sm text-red-500">{errors.environment}</p>
-        )}
       </div>
 
       <div className="flex justify-between pt-6">

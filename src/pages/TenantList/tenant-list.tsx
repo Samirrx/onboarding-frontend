@@ -143,12 +143,12 @@ export default function TenantDashboard() {
       </div>
 
       <div className="rounded-md border">
-        <div className="bg-slate-50 dark:bg-slate-900/50 p-4 grid grid-cols-12 gap-4 font-medium text-sm border-b">
-          <div className="col-span-3">Tenant</div>
-          <div className="col-span-2">Database</div>
-          <div className="col-span-2">Storage</div>
-          <div className="col-span-3">CDN</div>
-          <div className="col-span-2 text-right">Actions</div>
+        <div className="bg-slate-50 dark:bg-slate-900/50 p-4 grid grid-cols-12  font-medium text-sm border-b">
+          <div className="col-span-3 text-left">Tenant</div>
+          <div className="col-span-2 text-left">Database</div>
+          <div className="col-span-2 text-left">Storage</div>
+          <div className="col-span-3 text-left">CDN</div>
+          <div className="col-span-2 text-right pr-6">Actions</div>
         </div>
 
         {filteredTenants.length === 0 && (
@@ -156,14 +156,14 @@ export default function TenantDashboard() {
             No tenants found matching your search criteria.
           </div>
         )}
-
+<div className='h-[calc(100vh-16rem)] overflow-y-auto'>
         {filteredTenants.map((tenant) => (
           <div
             key={tenant.id}
             className="p-4 grid grid-cols-12 gap-4 items-center border-b last:border-b-0 hover:bg-slate-50 dark:hover:bg-slate-900/20 transition-colors"
           >
             <div className="col-span-3">
-              <div className="flex flex-col">
+              <div className="flex flex-col items-start">
                 <div className="flex items-center gap-2">
                   <span className="font-medium">{tenant.name}</span>
                   {tenant.active ? (
@@ -182,7 +182,7 @@ export default function TenantDashboard() {
                     </Badge>
                   )}
                 </div>
-                <div className="text-sm text-muted-foreground mt-1">
+                <div className="text-sm text-muted-foreground mt-1 truncate max-w-56" title={tenant.tenantId}>
                   ID: {tenant.tenantId}
                 </div>
                 <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
@@ -193,7 +193,7 @@ export default function TenantDashboard() {
             </div>
 
             <div className="col-span-2">
-              <div className="flex flex-col">
+              <div className="flex flex-col items-start">
                 <div className="text-sm truncate">{tenant.dbName}</div>
                 <div className="text-xs text-muted-foreground mt-0.5 truncate">
                   {tenant.dbUsername}
@@ -202,7 +202,7 @@ export default function TenantDashboard() {
             </div>
 
             <div className="col-span-2">
-              <div className="text-sm truncate">{tenant.bucketName}</div>
+              <div className="text-sm truncate flex items-start">{tenant.bucketName}</div>
             </div>
 
             <div className="col-span-3">
@@ -221,12 +221,12 @@ export default function TenantDashboard() {
               </Button>
             </div>
           </div>
-        ))}
+        ))}</div>
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         {selectedTenant && (
-          <DialogContent className="max-w-3xl">
+          <DialogContent className="max-w-5xl sm:max-w-5xl w-5xl ">
             <DialogHeader>
               <DialogTitle className="text-2xl flex items-center gap-2">
                 {selectedTenant.name}
@@ -244,7 +244,7 @@ export default function TenantDashboard() {
                 {selectedTenant.tenantId}
               </DialogDescription>
             </DialogHeader>
-
+<div className='h-[calc(100vh-10rem)] overflow-y-auto'>
             <div className="grid gap-6 py-4">
               <div className="grid md:grid-cols-2 gap-x-12 gap-y-6">
                 <div>
@@ -347,9 +347,9 @@ export default function TenantDashboard() {
                   <Shield className="h-4 w-4" />
                   Sensitive information is masked for security
                 </div>
-                <Button variant="default">Edit Tenant</Button>
+                
               </div>
-            </div>
+            </div></div>
           </DialogContent>
         )}
       </Dialog>

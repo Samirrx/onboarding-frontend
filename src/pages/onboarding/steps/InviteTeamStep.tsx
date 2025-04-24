@@ -16,7 +16,7 @@ import { Badge } from '@/components/ui/badge';
 interface TeamMember {
   id: string;
   email: string;
-  role: string;
+//  role: string;
 }
 
 interface InviteTeamStepProps {
@@ -36,7 +36,7 @@ export function InviteTeamStep({
     formData.teamMembers || []
   );
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState('admin');
+//  const [role, setRole] = useState('admin');
   const [error, setError] = useState('');
 
   const validateEmail = (email: string) => {
@@ -62,7 +62,7 @@ export function InviteTeamStep({
     const newMember: TeamMember = {
       id: Date.now().toString(),
       email,
-      role
+//      role
     };
 
     const updatedMembers = [...teamMembers, newMember];
@@ -71,7 +71,7 @@ export function InviteTeamStep({
 
     // Reset form
     setEmail('');
-    setRole('admin');
+//    setRole('admin');
     setError('');
   };
 
@@ -114,7 +114,7 @@ export function InviteTeamStep({
               />
             </div>
 
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="role">Role</Label>
               <Select
                 value={role}
@@ -128,7 +128,7 @@ export function InviteTeamStep({
                   <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
 
             <div className="flex items-end">
               <Button
@@ -173,10 +173,10 @@ export function InviteTeamStep({
                     </div>
                     <div className="flex flex-col items-start">
                       <p className="text-sm font-medium">{member.email}</p>
-                      <Badge variant="outline" className="mt-1">
+                      {/* <Badge variant="outline" className="mt-1">
                         {member.role.charAt(0).toUpperCase() +
                           member.role.slice(1)}
-                      </Badge>
+                      </Badge> */}
                     </div>
                   </div>
                   <Button
