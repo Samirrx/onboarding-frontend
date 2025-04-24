@@ -3,20 +3,13 @@ import { useState } from 'react';
 import { ArrowLeft, ArrowRight, Plus, Trash2, Mail } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
+
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 
 interface TeamMember {
   id: string;
   email: string;
-//  role: string;
+  //  role: string;
 }
 
 interface InviteTeamStepProps {
@@ -36,7 +29,7 @@ export function InviteTeamStep({
     formData.teamMembers || []
   );
   const [email, setEmail] = useState('');
-//  const [role, setRole] = useState('admin');
+  //  const [role, setRole] = useState('admin');
   const [error, setError] = useState('');
 
   const validateEmail = (email: string) => {
@@ -61,8 +54,8 @@ export function InviteTeamStep({
 
     const newMember: TeamMember = {
       id: Date.now().toString(),
-      email,
-//      role
+      email
+      //      role
     };
 
     const updatedMembers = [...teamMembers, newMember];
@@ -71,7 +64,7 @@ export function InviteTeamStep({
 
     // Reset form
     setEmail('');
-//    setRole('admin');
+    //    setRole('admin');
     setError('');
   };
 
