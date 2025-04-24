@@ -31,12 +31,14 @@ const data = {
       url: '#',
       items: [
         {
-          title: 'Tenant Settings',
-          url: '/'
+          title: 'Tenant List',
+          url: '/',
+          isActive: false
         },
         {
           title: 'Onboarding Setup',
-          url: '/onboarding-flow'
+          url: '/onboarding-flow',
+          isActive: false
         }
       ]
     }

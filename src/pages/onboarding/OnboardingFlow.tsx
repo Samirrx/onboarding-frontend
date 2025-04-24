@@ -26,7 +26,7 @@ function OnboardingFlow() {
     workspacePreferences: {
       theme: 'light',
       notifications: true,
-      modules: ['dashboard', 'projects', 'calendar']
+      modules: []
     }
   });
 

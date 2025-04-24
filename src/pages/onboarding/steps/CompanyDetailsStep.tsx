@@ -1,19 +1,20 @@
-'use client';
+"use client";
 
-import type React from 'react';
+import type React from "react";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
-import { ArrowLeft, ArrowRight, Upload } from 'lucide-react';
+  SelectValue,
+} from "@/components/ui/select";
+import { ArrowLeft, ArrowRight, Upload } from "lucide-react";
+import { useEffect } from "react";
 
 interface CompanyDetailsStepProps {
   formData: any;
@@ -26,13 +27,17 @@ export function CompanyDetailsStep({
   formData,
   updateFormData,
   onNext,
-  onBack
+  onBack,
 }: CompanyDetailsStepProps) {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
-  const [companyName, setCompanyName] = useState(formData.companyName || '');
-  const [industry, setIndustry] = useState(formData.industry || '');
-  const [size, setSize] = useState(formData.size || '');
+  const [companyName, setCompanyName] = useState(formData.companyName || "");
+  const [industry, setIndustry] = useState(formData.industry || "");
+  const [size, setSize] = useState(formData.size || "1-10");
+  const [environment, setEnvironment] = useState(formData.environment || "");
+  const [email, setEmail] = useState(formData.email || "");
+  const [phoneNumber, setPhoneNumber] = useState(formData.phoneNumber || "");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [canContinue, setCanContinue] = useState(false);
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -50,27 +55,50 @@ export function CompanyDetailsStep({
     const newErrors: Record<string, string> = {};
 
     if (!companyName.trim()) {
-      newErrors.companyName = 'Company name is required';
+      newErrors.companyName = "Company name is required";
     }
 
     if (!industry) {
-      newErrors.industry = 'Please select an industry';
+      newErrors.industry = "Please select an industry";
     }
-
-    if (!size) {
-      newErrors.size = 'Please select company size';
+    if (!environment) {
+      newErrors.environment = "Please select an environment";
     }
-
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = "Email address is invalid";
+    }
+    if (!phoneNumber.trim()) {
+      newErrors.phoneNumber = "Phone number is required";
+    } else if (!/^\d{10}$/.test(phoneNumber) || phoneNumber.length !== 10) {
+      newErrors.phoneNumber = "Phone number must be 10 digits";
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  useEffect(() => {
+    const isValid =
+      companyName.trim() &&
+      industry &&
+      size &&
+      environment &&
+      email.trim() &&
+      /^\S+@\S+\.\S+$/.test(email) &&
+      phoneNumber.trim();
+    setCanContinue(!!isValid);
+  }, [companyName, industry, environment, size, email, phoneNumber]);
 
   const handleSubmit = () => {
     if (validateForm()) {
       updateFormData({
         companyName,
         industry,
-        size
+        size,
+        environment,
+        email,
+        phoneNumber,
       });
       onNext();
     }
@@ -92,7 +120,7 @@ export function CompanyDetailsStep({
             <div className="w-32 h-32 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden border-2 border-dashed border-slate-300">
               {logoPreview ? (
                 <img
-                  src={logoPreview || '/placeholder.svg'}
+                  src={logoPreview || "/placeholder.svg"}
                   alt="Company logo preview"
                   className="w-full h-full object-cover"
                 />
@@ -115,7 +143,7 @@ export function CompanyDetailsStep({
               variant="outline"
               size="sm"
               className="absolute bottom-0 right-0 rounded-full"
-              onClick={() => document.getElementById('logo-upload')?.click()}
+              onClick={() => document.getElementById("logo-upload")?.click()}
             >
               <Upload className="h-4 w-4" />
             </Button>
@@ -126,70 +154,142 @@ export function CompanyDetailsStep({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="company-name">Company Name</Label>
+          <Label htmlFor="company-name">
+            Company Name {<span className="text-red-500">*</span>}
+          </Label>
           <Input
             id="company-name"
             value={companyName}
             onChange={(e) => setCompanyName(e.target.value)}
             placeholder="Acme Inc."
-            className={errors.companyName ? 'border-red-500 w-full' : 'w-full'}
+            className={errors.companyName ? "border-red-500" : ""}
           />
           {errors.companyName && (
             <p className="text-sm text-red-500">{errors.companyName}</p>
           )}
         </div>
 
-        <div className="space-y-2 w-full">
-          <Label htmlFor="industry">Industry</Label>
-          <Select value={industry} onValueChange={setIndustry}>
-            <SelectTrigger
-              id="industry"
-              className={errors.industry ? 'border-red-500 w-full' : 'w-full'}
-            >
-              <SelectValue placeholder="Select industry" />
-            </SelectTrigger>
-            <SelectContent className="w-full">
-              <SelectItem value="technology">Technology</SelectItem>
-              <SelectItem value="healthcare">Healthcare</SelectItem>
-              <SelectItem value="finance">Finance</SelectItem>
-              <SelectItem value="education">Education</SelectItem>
-              <SelectItem value="retail">Retail</SelectItem>
-              <SelectItem value="manufacturing">Manufacturing</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
-            </SelectContent>
-          </Select>
-          {errors.industry && (
-            <p className="text-sm text-red-500">{errors.industry}</p>
+        <div className="space-y-2">
+          <Label htmlFor="email">
+            Email {<span className="text-red-500">*</span>}
+          </Label>
+          <Input
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Company Email"
+            type="email"
+            className={errors.email ? "border-red-500" : ""}
+          />
+          {errors.email && (
+            <p className="text-sm text-red-500">{errors.email}</p>
           )}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="size">Company Size</Label>
-          <Select value={size} onValueChange={setSize}>
-            <SelectTrigger
-              id="size"
-              className={errors.size ? 'border-red-500 w-full ' : 'w-full'}
-            >
-              <SelectValue placeholder="Select company size" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1-10">1-10 employees</SelectItem>
-              <SelectItem value="11-50">11-50 employees</SelectItem>
-              <SelectItem value="51-200">51-200 employees</SelectItem>
-              <SelectItem value="201-500">201-500 employees</SelectItem>
-              <SelectItem value="501-1000">501-1000 employees</SelectItem>
-              <SelectItem value="1000+">1000+ employees</SelectItem>
-            </SelectContent>
-          </Select>
-          {errors.size && <p className="text-sm text-red-500">{errors.size}</p>}
+          <Label htmlFor="phone">
+            Phone Number <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            id="phone"
+            value={phoneNumber}
+            onChange={(e) => {
+              const sanitized = e.target.value.replace(/\D/g, "");
+              setPhoneNumber(sanitized);
+            }}
+            onKeyDown={(e) => {
+              const invalidKeys = ["e", "E", ".", "+", "-", " "];
+              if (invalidKeys.includes(e.key)) {
+                e.preventDefault();
+              }
+            }}
+            placeholder="Phone Number"
+            type="text"
+            maxLength={10}
+            inputMode="numeric"
+            pattern="\d*"
+            className={errors.phoneNumber ? "border-red-500" : ""}
+          />
+          {errors.phoneNumber && (
+            <p className="text-sm text-red-500">{errors.phoneNumber}</p>
+          )}
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="industry">
+          Industry {<span className="text-red-500">*</span>}
+        </Label>
+        <Select value={industry} onValueChange={setIndustry}>
+          <SelectTrigger
+            id="industry"
+            className={errors.industry ? "border-red-500 w-full" : "w-full"}
+          >
+            <SelectValue placeholder="Select industry" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="technology">Technology</SelectItem>
+            <SelectItem value="healthcare">Healthcare</SelectItem>
+            <SelectItem value="finance">Finance</SelectItem>
+            <SelectItem value="education">Education</SelectItem>
+            <SelectItem value="retail">Retail</SelectItem>
+            <SelectItem value="manufacturing">Manufacturing</SelectItem>
+            <SelectItem value="other">Other</SelectItem>
+          </SelectContent>
+        </Select>
+        {errors.industry && (
+          <p className="text-sm text-red-500">{errors.industry}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="size">Company Size</Label>
+        <Select value={size} onValueChange={setSize}>
+          <SelectTrigger
+            id="size"
+            className={errors.size ? "border-red-500 w-full" : "w-full"}
+          >
+            <SelectValue placeholder="Select company size" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="1-10">1-10 employees</SelectItem>
+            <SelectItem value="11-50">11-50 employees</SelectItem>
+            <SelectItem value="51-200">51-200 employees</SelectItem>
+            <SelectItem value="201-500">201-500 employees</SelectItem>
+            <SelectItem value="501-1000">501-1000 employees</SelectItem>
+            <SelectItem value="1000+">1000+ employees</SelectItem>
+          </SelectContent>
+        </Select>
+        {errors.size && <p className="text-sm text-red-500">{errors.size}</p>}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="environment">
+          Environment {<span className="text-red-500">*</span>}
+        </Label>
+        <Select value={environment} onValueChange={setEnvironment}>
+          <SelectTrigger
+            id="environment"
+            className={errors.environment ? "border-red-500 w-full" : "w-full"}
+          >
+            <SelectValue placeholder="Select environment" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Dev">Dev</SelectItem>
+            <SelectItem value="Preprod">Preprod</SelectItem>
+            <SelectItem value="App">App</SelectItem>
+          </SelectContent>
+        </Select>
+        {errors.environment && (
+          <p className="text-sm text-red-500">{errors.environment}</p>
+        )}
       </div>
 
       <div className="flex justify-between pt-6">
         <Button variant="outline" onClick={onBack}>
           <ArrowLeft className="mr-2 h-4 w-4" /> Back
         </Button>
-        <Button onClick={handleSubmit}>
+        <Button onClick={handleSubmit} disabled={!canContinue}>
           Continue <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>

@@ -6,13 +6,15 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import AppRoutes from '../routes/AppRoutes';
 import { AppSidebar } from '@/pages/sidebar/sidebar';
 import Breadcrumb from './breadcrump';
+import { ToastProvider } from '@/hooks/toastUtils';
 
 const excludedUrls = ['/login'];
 
-const Layout = ({ children }) => {
+const Layout = () => {
   return (
     <BrowserRouter>
       <SidebarProvider>
+        <ToastProvider>
         <div className="flex min-h-screen w-full h-screen overflow-hidden">
           {/* Sidebar stays on the side across all pages */}
           {!excludedUrls.includes(window.location.pathname) ? (
@@ -25,8 +27,9 @@ const Layout = ({ children }) => {
             </div>
           )}
 
-          {/* Main content */}
-        </div>
+         
+          
+        </div></ToastProvider>
       </SidebarProvider>
     </BrowserRouter>
   );

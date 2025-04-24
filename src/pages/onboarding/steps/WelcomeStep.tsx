@@ -1,20 +1,20 @@
-import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+"use client"
+
+import { Button } from "@/components/ui/button"
+import { ArrowRight } from "lucide-react"
 
 interface WelcomeStepProps {
-  onNext: () => void;
+  onNext: () => void
 }
 
 export function WelcomeStep({ onNext }: WelcomeStepProps) {
   return (
     <div className="space-y-6 py-6">
       <div className="text-center space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">
-          Welcome to the platform
-        </h2>
+        <h2 className="text-3xl font-bold tracking-tight">Welcome to the platform</h2>
         <p className="text-muted-foreground max-w-md mx-auto">
-          Let's get your company set up in just a few easy steps. We'll help you
-          customize your workspace and invite your team.
+          Let's get your company set up in just a few easy steps. We'll help you customize your workspace and invite
+          your team.
         </p>
       </div>
 
@@ -40,9 +40,7 @@ export function WelcomeStep({ onNext }: WelcomeStepProps) {
             </svg>
           </div>
           <h3 className="font-medium mb-2">Company Profile</h3>
-          <p className="text-sm text-muted-foreground">
-            Set up your company details and upload your logo
-          </p>
+          <p className="text-sm text-muted-foreground">Set up your company details and upload your logo</p>
         </div>
 
         <div className="bg-slate-50 p-6 rounded-lg text-center">
@@ -59,16 +57,12 @@ export function WelcomeStep({ onNext }: WelcomeStepProps) {
               strokeLinejoin="round"
               className="text-primary"
             >
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-              <circle cx="9" cy="7" r="4"></circle>
-              <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              <path d="M21 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
             </svg>
           </div>
-          <h3 className="font-medium mb-2">Invite Team</h3>
-          <p className="text-sm text-muted-foreground">
-            Add your team members and assign roles
-          </p>
+          <h3 className="font-medium mb-2">Add Collaborator</h3>
+          <p className="text-sm text-muted-foreground">Add your team member and assign a role</p>
         </div>
 
         <div className="bg-slate-50 p-6 rounded-lg text-center">
@@ -91,9 +85,7 @@ export function WelcomeStep({ onNext }: WelcomeStepProps) {
             </svg>
           </div>
           <h3 className="font-medium mb-2">Workspace Setup</h3>
-          <p className="text-sm text-muted-foreground">
-            Customize your workspace preferences
-          </p>
+          <p className="text-sm text-muted-foreground">Customize your workspace preferences</p>
         </div>
       </div>
 
@@ -103,5 +95,5 @@ export function WelcomeStep({ onNext }: WelcomeStepProps) {
         </Button>
       </div>
     </div>
-  );
+  )
 }

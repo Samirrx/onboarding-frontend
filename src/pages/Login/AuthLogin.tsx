@@ -52,7 +52,6 @@ function AuthLogin() {
     defaultValues: {
       username: '',
       password: '',
-      tenantid: '',
       persistent: localStorage.getItem('persistent') === 'true'
     }
   });
@@ -76,14 +75,14 @@ function AuthLogin() {
     setErrorMessage('');
     try {
       const response = await userLogin(data);
-
-      if (!response.payload || response.payload.statusCode === 400) {
+      console.log('Login Response:', response);
+      if ( response.statusCode === 400) {
         setErrorMessage('Incorrect Email Id or password.');
         return;
       }
 
-      if (!response.payload || response.payload.statusCode !== 200) {
-        setErrorMessage(response.payload?.message);
+      if ( response.statusCode !== 200) {
+        setErrorMessage(response?.message);
         return;
       }
     } catch (error) {

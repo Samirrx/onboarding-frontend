@@ -1,5 +1,7 @@
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, CheckCircle2 } from 'lucide-react';
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, CheckCircle2 } from "lucide-react";
 
 interface CompletionStepProps {
   formData: any;
@@ -15,52 +17,64 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
             <CheckCircle2 className="h-8 w-8 text-primary" />
           </div>
         </div>
-        <h2 className="text-2xl font-bold tracking-tight">Setup Complete!</h2>
-        <p className="text-muted-foreground max-w-md mx-auto">
-          Congratulations! You've successfully set up your company workspace.
-        </p>
+        <h2 className="text-2xl font-bold tracking-tight">Review Details</h2>
       </div>
 
       <div className="bg-slate-50 rounded-lg p-6 mt-8">
-        <h3 className="font-medium mb-4">Company Summary</h3>
+        <h3 className="font-medium mb-4 text-justify">Company Summary</h3>
         <dl className="grid gap-3 text-sm">
           <div className="grid grid-cols-3 gap-1">
-            <dt className="text-muted-foreground">Company Name:</dt>
-            <dd className="col-span-2 font-medium">{formData.companyName}</dd>
+            <dt className="text-muted-foreground text-justify">Company Name:</dt>
+            <dd className="col-span-2 font-medium text-justify">{formData.companyName}</dd>
+          </div>
+          <div>
+            <div className="grid grid-cols-3 gap-1">
+              <dt className="text-muted-foreground text-justify">Email:</dt>
+              <dd className="col-span-2 font-medium text-justify">{formData.email}</dd>
+            </div>
           </div>
           <div className="grid grid-cols-3 gap-1">
-            <dt className="text-muted-foreground">Industry:</dt>
-            <dd className="col-span-2 font-medium">{formData.industry}</dd>
+            <dt className="text-muted-foreground text-justify">Phone Number:</dt>
+            <dd className="col-span-2 font-medium text-justify">{formData.phoneNumber}</dd>
           </div>
           <div className="grid grid-cols-3 gap-1">
-            <dt className="text-muted-foreground">Company Size:</dt>
-            <dd className="col-span-2 font-medium">{formData.size}</dd>
+            <dt className="text-muted-foreground text-justify">Industry:</dt>
+            <dd className="col-span-2 font-medium text-justify">{formData.industry}</dd>
           </div>
           <div className="grid grid-cols-3 gap-1">
-            <dt className="text-muted-foreground">Team Members:</dt>
-            <dd className="col-span-2 font-medium">
-              {formData.teamMembers.length} invited
+            <dt className="text-muted-foreground text-justify">Company Size:</dt>
+            <dd className="col-span-2 font-medium text-justify">{formData.size}</dd>
+          </div>
+          <div className="grid grid-cols-3 gap-1">
+            <dt className="text-muted-foreground text-justify">Environment:</dt>
+            <dd className="col-span-2 font-medium text-justify">{formData.environment}</dd>
+          </div>
+          <div className="grid grid-cols-3 gap-1">
+            <dt className="text-muted-foreground text-justify">Team Members:</dt>
+            <dd className="col-span-2 font-medium space-y-1 text-justify">
+              {formData.teamMembers.map((member: any) => (
+                <div key={member.id}>{member.email}</div>
+              ))}
             </dd>
           </div>
           <div className="grid grid-cols-3 gap-1">
-            <dt className="text-muted-foreground">Modules Enabled:</dt>
-            <dd className="col-span-2 font-medium">
-              {formData.workspacePreferences.modules
+            <dt className="text-muted-foreground text-justify">Modules Enabled:</dt>
+            <dd className="col-span-2 font-medium text-justify">
+              {formData.modules
                 .map(
                   (module: string) =>
                     module.charAt(0).toUpperCase() + module.slice(1)
                 )
-                .join(', ')}
+                .join(", ")}
             </dd>
           </div>
         </dl>
       </div>
-
       <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
         <Button variant="outline" onClick={onBack}>
           <ArrowLeft className="mr-2 h-4 w-4" /> Back to Settings
         </Button>
-        <Button>Go to Dashboard</Button>
+        <Button>Onboard Tenant</Button>
       </div>
     </div>
   );

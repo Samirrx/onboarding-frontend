@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { getTimezone, getTimezoneOffset } from '../utils/helpers';
+import { notify } from '../hooks/toastUtils';
 
 const getApiEndpoint = () => {
   return 'https://onboarding-api.dglide.com';
@@ -117,13 +118,59 @@ const makeHttpCall = async ({ headers = {}, ...options }) => {
 };
 
 // ✅ Named export for specific API usage
-export const userLogin = async (data) => {
-  return await makeHttpCall({
-    method: 'POST',
-    url: '/user/login',
-    data,
-    headers: { username: data?.username }
-  });
+export const userLogin = async (credentials) => {
+  try {
+    const response = await makeHttpCall({
+      method: 'POST',
+      url: '/user/login',
+      data: credentials,
+      headers: { username: credentials?.username },
+    });
+
+
+    if (response.status) {
+      localStorage.setItem(
+        "auth-token",
+        JSON.stringify(response.result.tokenDetail)
+      );
+      window.location.href = "/";
+      window.location.reload();
+    } else {
+      notify.error(response?.message || "Oops! Something went wrong");
+    }
+
+    return response;
+  } catch (error) {
+    notify.error("Login failed. Please try again.");
+    console.error("Login error:", error);
+    return null;
+  }
 };
+
+
+
+
+// export const userLogin = async (data) => {
+
+//   if (data.status) {
+//     localStorage.setItem(
+//       "auth-token",
+//       JSON.stringify(data.result.tokenDetail)
+//     );
+//     navigate("/");
+//     window.location.reload();
+//   } else {
+//     notify.error(data?.message || "Oops! Something went wrong");
+//   }
+
+
+
+//   return await makeHttpCall({
+//     method: 'POST',
+//     url: '/user/login',
+//     data,
+//     headers: { username: data?.username }
+//   });
+// };
 
 export default makeHttpCall;

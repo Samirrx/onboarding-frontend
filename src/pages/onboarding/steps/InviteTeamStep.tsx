@@ -36,7 +36,7 @@ export function InviteTeamStep({
     formData.teamMembers || []
   );
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState('member');
+  const [role, setRole] = useState('admin');
   const [error, setError] = useState('');
 
   const validateEmail = (email: string) => {
@@ -71,7 +71,7 @@ export function InviteTeamStep({
 
     // Reset form
     setEmail('');
-    setRole('member');
+    setRole('admin');
     setError('');
   };
 
@@ -88,10 +88,9 @@ export function InviteTeamStep({
   return (
     <div className="space-y-6 py-6">
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold tracking-tight">Invite Your Team</h2>
-        <p className="text-muted-foreground">
-          Add team members to collaborate with you. You can always add more
-          people later.
+        <h2 className="text-2xl font-bold tracking-tight text-justify">Invite Your Team</h2>
+        <p className="text-muted-foreground text-justify">
+        Add team member to collaborate with you.
         </p>
       </div>
 
@@ -109,19 +108,18 @@ export function InviteTeamStep({
                   setEmail(e.target.value);
                   setError('');
                 }}
+                disabled={teamMembers.length >= 1}
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="role">Role</Label>
-              <Select value={role} onValueChange={setRole}>
+              <Select value={role} onValueChange={setRole} disabled={teamMembers.length >= 1}>
                 <SelectTrigger id="role" className="w-[140px]">
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="member">Member</SelectItem>
-                  <SelectItem value="viewer">Viewer</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -131,6 +129,7 @@ export function InviteTeamStep({
                 type="button"
                 onClick={handleAddMember}
                 className="mb-0.5"
+                disabled={teamMembers.length >= 1}
               >
                 <Plus className="h-4 w-4 mr-2" /> Add
               </Button>
@@ -193,7 +192,7 @@ export function InviteTeamStep({
         <Button variant="outline" onClick={onBack}>
           <ArrowLeft className="mr-2 h-4 w-4" /> Back
         </Button>
-        <Button onClick={handleSubmit}>
+        <Button onClick={handleSubmit} disabled={teamMembers.length === 0}>
           Continue <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>

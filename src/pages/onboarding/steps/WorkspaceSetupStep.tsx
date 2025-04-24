@@ -1,11 +1,8 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Switch } from '@/components/ui/switch';
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 
 interface WorkspaceSetupStepProps {
   formData: any;
@@ -14,186 +11,132 @@ interface WorkspaceSetupStepProps {
   onBack: () => void;
 }
 
-export function WorkspaceSetupStep({
-  formData,
-  updateFormData,
-  onNext,
-  onBack
-}: WorkspaceSetupStepProps) {
+export function WorkspaceSetupStep({ formData, updateFormData, onNext, onBack }: WorkspaceSetupStepProps) {
   const [preferences, setPreferences] = useState({
-    theme: formData.workspacePreferences?.theme || 'light',
+    theme: formData.workspacePreferences?.theme || "light",
     notifications: formData.workspacePreferences?.notifications !== false,
-    modules: formData.workspacePreferences?.modules || [
-      'dashboard',
-      'projects',
-      'calendar'
-    ]
-  });
+    modules: formData.workspacePreferences?.modules || [],
+  })
 
   const modules = [
     {
-      id: 'dashboard',
-      name: 'Dashboard',
-      description: "Overview of your company's activity"
+      id: "CRM",
+      name: "CRM",
+      description:
+        "A centralized platform for managing customer relationships, and activities.",
     },
     {
-      id: 'projects',
-      name: 'Projects',
-      description: "Manage and track your team's projects"
+      id: "FSM",
+      name: "FSM",
+      description:
+        "Efficiently manage field teams, job assignments, and on-site service tasks.",
     },
     {
-      id: 'calendar',
-      name: 'Calendar',
-      description: 'Schedule and manage events'
+      id: "ITSM",
+      name: "ITSM",
+      description:
+        "Track incidents, and automate IT workflows to enhance service delivery.",
     },
     {
-      id: 'tasks',
-      name: 'Tasks',
-      description: 'Assign and track tasks for your team'
+      id: "Helpdesk",
+      name: "Helpdesk ",
+      description:
+        "Manage support requests, assign tickets, and ensure timely resolution.",
     },
     {
-      id: 'documents',
-      name: 'Documents',
-      description: 'Store and share important files'
+      id: "assetManagement",
+      name: "Asset Management",
+      description:
+        "Track, manage, and maintain physical and digital assets across their lifecycle.",
     },
     {
-      id: 'analytics',
-      name: 'Analytics',
-      description: 'Track performance and metrics'
-    }
+      id: "HRMS",
+      name: "HRMS",
+      description:
+        "Managing employee data, tracking performance, and automating.",
+    },
+    {
+      id: "attendanceManagement",
+      name: "Attendance Management",
+      description:
+        "Track employee check-ins, working hours, leaves, and absences in real time.",
+    },
+    {
+      id: "debtManagement",
+      name: "Debt Management",
+      description:
+        "Keep records of debts, automate repayment schedules, reduce financial risk.",
+    },
   ];
 
-  const handleThemeChange = (value: string) => {
-    setPreferences({
-      ...preferences,
-      theme: value
-    });
-  };
-
-  const handleNotificationsChange = (checked: boolean) => {
-    setPreferences({
-      ...preferences,
-      notifications: checked
-    });
-  };
-
   const handleModuleToggle = (moduleId: string) => {
-    const updatedModules = preferences.modules.includes(moduleId)
-      ? preferences.modules.filter((id) => id !== moduleId)
-      : [...preferences.modules, moduleId];
+    setPreferences((prev) => {
+      const isSelected = prev.modules.includes(moduleId);
+      const updatedModules = isSelected
+        ? prev.modules.filter((id: string) => id !== moduleId)
+        : [...prev.modules, moduleId];
 
-    setPreferences({
-      ...preferences,
-      modules: updatedModules
+      return {
+        ...prev,
+        modules: updatedModules,
+      };
     });
   };
 
   const handleSubmit = () => {
     updateFormData({
-      workspacePreferences: preferences
+      workspacePreferences: {
+        theme: preferences.theme,
+        notifications: preferences.notifications,
+        modules: preferences.modules,
+      },
+      modules: preferences.modules,
     });
     onNext();
   };
-
+  console.log(handleSubmit);
   return (
     <div className="space-y-6 py-6">
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold tracking-tight">Workspace Setup</h2>
-        <p className="text-muted-foreground">
+        <h2 className="text-2xl font-bold tracking-tight text-justify">Workspace Setup</h2>
+        <p className="text-muted-foreground text-justify">
           Customize your workspace to fit your team's needs.
         </p>
       </div>
 
       <div className="grid gap-8 pt-4">
         <div className="space-y-4">
-          <h3 className="text-lg font-medium">Appearance</h3>
-          <RadioGroup
-            value={preferences.theme}
-            onValueChange={handleThemeChange}
-            className="grid grid-cols-2 gap-4"
-          >
-            <div>
-              <RadioGroupItem
-                value="light"
-                id="theme-light"
-                className="peer sr-only"
-              />
-              <Label
-                htmlFor="theme-light"
-                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-              >
-                <div className="mb-3 rounded-md border border-slate-200 p-1">
-                  <div className="h-20 w-full rounded-sm bg-white"></div>
-                </div>
-                <p className="text-sm font-medium">Light</p>
-              </Label>
-            </div>
-            <div>
-              <RadioGroupItem
-                value="dark"
-                id="theme-dark"
-                className="peer sr-only"
-              />
-              <Label
-                htmlFor="theme-dark"
-                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-              >
-                <div className="mb-3 rounded-md border border-slate-200 p-1">
-                  <div className="h-20 w-full rounded-sm bg-slate-950"></div>
-                </div>
-                <p className="text-sm font-medium">Dark</p>
-              </Label>
-            </div>
-          </RadioGroup>
-        </div>
-
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Notifications</h3>
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="notifications"
-              checked={preferences.notifications}
-              onCheckedChange={handleNotificationsChange}
-            />
-            <Label htmlFor="notifications">Enable email notifications</Label>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Receive notifications about important updates, mentions, and
-            activity in your workspace.
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Modules</h3>
-          <p className="text-sm text-muted-foreground">
+          <h3 className="text-lg font-medium text-justify">Modules</h3>
+          <p className="text-sm text-muted-foreground text-justify">
             Select the modules you want to enable for your workspace.
           </p>
 
           <div className="grid gap-4 sm:grid-cols-2">
             {modules.map((module) => (
-              <div
-                key={module.id}
-                className={`flex items-start space-x-3 rounded-md border p-4 cursor-pointer transition-colors ${
-                  preferences.modules.includes(module.id)
-                    ? 'border-primary bg-primary/5'
-                    : 'border-border hover:bg-accent'
-                }`}
-                onClick={() => handleModuleToggle(module.id)}
-              >
+              <div key={module.id} className="space-y-2">
                 <div
-                  className={`mt-0.5 rounded-full p-1 ${
+                  className={`flex items-start space-x-3 rounded-md border p-4 cursor-pointer transition-colors ${
                     preferences.modules.includes(module.id)
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted text-muted-foreground'
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:bg-accent"
                   }`}
+                  onClick={() => handleModuleToggle(module.id)}
                 >
-                  <Check className="h-4 w-4" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium">{module.name}</h4>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {module.description}
-                  </p>
+                  <div
+                    className={`mt-0.5 rounded-full p-1 ${
+                      preferences.modules.includes(module.id)
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    <Check className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium">{module.name}</h4>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {module.description}
+                    </p>
+                  </div>
                 </div>
               </div>
             ))}
