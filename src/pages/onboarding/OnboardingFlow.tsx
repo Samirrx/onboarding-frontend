@@ -22,7 +22,7 @@ function OnboardingFlow() {
     companyLogo: null,
     industry: '',
     size: '',
-    teamMembers: [],
+    teamMembers: "",
     workspacePreferences: {
       theme: 'light',
       notifications: true,

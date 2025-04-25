@@ -16,7 +16,7 @@ import { Badge } from '@/components/ui/badge';
 interface TeamMember {
   id: string;
   email: string;
-//  role: string;
+  // role: string;
 }
 
 interface InviteTeamStepProps {
@@ -33,10 +33,10 @@ export function InviteTeamStep({
   onBack
 }: InviteTeamStepProps) {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>(
-    formData.teamMembers || []
+    Array.isArray(formData.teamMembers) ? formData.teamMembers : []
   );
   const [email, setEmail] = useState('');
-//  const [role, setRole] = useState('admin');
+  // const [role, setRole] = useState('admin');
   const [error, setError] = useState('');
 
   const validateEmail = (email: string) => {
@@ -62,16 +62,16 @@ export function InviteTeamStep({
     const newMember: TeamMember = {
       id: Date.now().toString(),
       email,
-//      role
+      // role
     };
 
     const updatedMembers = [...teamMembers, newMember];
     setTeamMembers(updatedMembers);
-    updateFormData({ teamMembers: email });
+    updateFormData({ teamMembers: updatedMembers });
 
     // Reset form
     setEmail('');
-//    setRole('admin');
+    // setRole('admin');
     setError('');
   };
 
