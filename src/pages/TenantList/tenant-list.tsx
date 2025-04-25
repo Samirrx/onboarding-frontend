@@ -27,6 +27,7 @@ import { useNavigate } from 'react-router-dom';
 interface Tenant {
   id: number;
   name: string;
+  email: string;
   tenantId: string;
   dbUsername: string;
   dbPassword: string;
@@ -257,6 +258,8 @@ export default function TenantDashboard() {
                     <dd>{selectedTenant.id}</dd>
                     <dt className="text-muted-foreground">Name:</dt>
                     <dd>{selectedTenant.name}</dd>
+                    <dt className="text-muted-foreground">Email:</dt>
+                    <dd>{selectedTenant.email}</dd>
                     <dt className="text-muted-foreground">Tenant ID:</dt>
                     <dd>{selectedTenant.tenantId}</dd>
                     <dt className="text-muted-foreground">Status:</dt>

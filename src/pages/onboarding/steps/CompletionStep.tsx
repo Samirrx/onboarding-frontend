@@ -6,6 +6,7 @@ import { addTenant } from "@/services/controllers/onboarding";
 import { notify } from "@/hooks/toastUtils";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+
 interface CompletionStepProps {
   formData: any;
   onBack: () => void;
@@ -14,20 +15,29 @@ interface CompletionStepProps {
 export function CompletionStep({ formData, onBack }: CompletionStepProps) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+
+  const data = {
+    ...formData,
+    modules: formData.modules.map((module: string) => module.toLowerCase()),
+    teamMembers: formData.teamMembers[0]?.email || "",
+  };
+
   const submitTenant = async () => {
     setLoading(true);
+    console.log("Data to be sent:", data);
+
     try {
-      const response = await addTenant(formData);
+      const response = await addTenant(data);
       if (response?.status) {
         navigate("/");
         notify.success("Please wait... Creating new tenant", {
           autoClose: 5000,
         });
-        setLoading(false);
       }
       console.log("Tenant added successfully:", response);
     } catch (error) {
       console.error("Error adding tenant:", error);
+    } finally {
       setLoading(false);
     }
   };
@@ -49,69 +59,55 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
           <div className="grid grid-cols-3 gap-1">
             <dt className="text-muted-foreground text-justify">Environment:</dt>
             <dd className="col-span-2 font-medium text-justify">
-              {formData.environment}
+              {data.environment}
             </dd>
           </div>
           <div className="grid grid-cols-3 gap-1">
-            <dt className="text-muted-foreground text-justify">
-              Instance Type
-            </dt>
+            <dt className="text-muted-foreground text-justify">Instance Type</dt>
             <dd className="col-span-2 font-medium text-justify">
-              {formData.instanceType}
+              {data.instanceType}
             </dd>
           </div>
           <div className="grid grid-cols-3 gap-1">
-            <dt className="text-muted-foreground text-justify">
-              Company Name:
-            </dt>
+            <dt className="text-muted-foreground text-justify">Company Name:</dt>
             <dd className="col-span-2 font-medium text-justify">
-              {formData.companyName}
+              {data.companyName}
             </dd>
           </div>
-          <div>
-            <div className="grid grid-cols-3 gap-1">
-              <dt className="text-muted-foreground text-justify">Email:</dt>
-              <dd className="col-span-2 font-medium text-justify">
-                {formData.email}
-              </dd>
-            </div>
+          <div className="grid grid-cols-3 gap-1">
+            <dt className="text-muted-foreground text-justify">Email:</dt>
+            <dd className="col-span-2 font-medium text-justify">
+              {data.email}
+            </dd>
           </div>
           <div className="grid grid-cols-3 gap-1">
-            <dt className="text-muted-foreground text-justify">
-              Phone Number:
-            </dt>
+            <dt className="text-muted-foreground text-justify">Phone Number:</dt>
             <dd className="col-span-2 font-medium text-justify">
-              {formData.phoneNumber}
+              {data.phoneNumber}
             </dd>
           </div>
           <div className="grid grid-cols-3 gap-1">
             <dt className="text-muted-foreground text-justify">Industry:</dt>
             <dd className="col-span-2 font-medium text-justify">
-              {formData.industry}
+              {data.industry}
             </dd>
           </div>
           <div className="grid grid-cols-3 gap-1">
-            <dt className="text-muted-foreground text-justify">
-              Company Size:
-            </dt>
+            <dt className="text-muted-foreground text-justify">Company Size:</dt>
             <dd className="col-span-2 font-medium text-justify">
-              {formData.size}
+              {data.size}
             </dd>
           </div>
           <div className="grid grid-cols-3 gap-1">
-            <dt className="text-muted-foreground text-justify">
-              Team Members:
-            </dt>
-            <dd className="col-span-2 font-medium space-y-1 text-justify">
-              {formData.teamMembers}
-            </dd>
-          </div>
-          <div className="grid grid-cols-3 gap-1">
-            <dt className="text-muted-foreground text-justify">
-              Modules Enabled:
-            </dt>
+            <dt className="text-muted-foreground text-justify">Team Members:</dt>
             <dd className="col-span-2 font-medium text-justify">
-              {formData.modules
+              {data.teamMembers}
+            </dd>
+          </div>
+          <div className="grid grid-cols-3 gap-1">
+            <dt className="text-muted-foreground text-justify">Modules Enabled:</dt>
+            <dd className="col-span-2 font-medium text-justify">
+              {data.modules
                 .map(
                   (module: string) =>
                     module.charAt(0).toUpperCase() + module.slice(1)
@@ -121,11 +117,12 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
           </div>
         </dl>
       </div>
+
       <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
         <Button variant="outline" onClick={onBack} disabled={loading}>
           <ArrowLeft className="mr-2 h-4 w-4" /> Back to Settings
         </Button>
-        <Button onClick={() => submitTenant()} disabled={loading}>
+        <Button onClick={submitTenant} disabled={loading}>
           {`Onboard Tenant ${loading ? "..." : ""}`}
         </Button>
       </div>
