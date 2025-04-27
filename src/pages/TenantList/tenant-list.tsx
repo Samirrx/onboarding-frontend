@@ -1,28 +1,37 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import {
   Calendar,
   Database,
   ExternalLink,
   Server,
   Shield,
-  User
-} from 'lucide-react';
-import { format } from 'date-fns';
+  User,
+} from "lucide-react";
+import { format } from "date-fns";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { fetchTenantList } from '@/services/controllers/onboarding';
-import { useNavigate } from 'react-router-dom';
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Label } from "@/components/ui/label";
+import { fetchTenantList } from "@/services/controllers/onboarding";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { useNavigate } from "react-router-dom";
+import { Input } from "@/components/ui/input";
 
 interface Tenant {
   id: number;
@@ -46,17 +55,18 @@ interface Tenant {
 export default function TenantDashboard() {
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [devEnviroment, setDevEnvironment] = useState("Dev");
   const navigate = useNavigate();
 
   const fetchTenantsLists = async () => {
     try {
       const response = await fetchTenantList();
-      console.log('Tenants List Response:', response);
+      console.log("Tenants List Response:", response);
       setTenants(response);
     } catch (error) {
-      console.error('Error fetching tenants:', error);
+      console.error("Error fetching tenants:", error);
     }
   };
   useEffect(() => {
@@ -69,8 +79,8 @@ export default function TenantDashboard() {
   };
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return 'N/A';
-    return format(new Date(dateString), 'MMM d, yyyy');
+    if (!dateString) return "N/A";
+    return format(new Date(dateString), "MMM d, yyyy");
   };
 
   const filteredTenants = tenants.filter((tenant) => {
@@ -97,7 +107,7 @@ export default function TenantDashboard() {
 
         <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
           <div className="relative">
-            <input
+            <Input
               type="text"
               placeholder="Search tenants..."
               value={searchQuery}
@@ -119,10 +129,26 @@ export default function TenantDashboard() {
               />
             </svg>
           </div>
-
+          <div className="flex items-center gap-2">
+            <Select value={devEnviroment} onValueChange={setDevEnvironment}>
+              <SelectTrigger
+                id="devEnviroment"
+                className={
+                  "w-32"
+                }
+              >
+                <SelectValue placeholder="Select environment" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Dev">Dev</SelectItem>
+                <SelectItem value="Preprod">Preprod</SelectItem>
+                <SelectItem value="App">App</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <Button
             className="gap-2"
-            onClick={() => navigate('/onboarding-flow')}
+            onClick={() => navigate("/onboarding-flow")}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -157,72 +183,78 @@ export default function TenantDashboard() {
             No tenants found matching your search criteria.
           </div>
         )}
-<div className='h-[calc(100vh-16rem)] overflow-y-auto'>
-        {filteredTenants.map((tenant) => (
-          <div
-            key={tenant.id}
-            className="p-4 grid grid-cols-12 gap-4 items-center border-b last:border-b-0 hover:bg-slate-50 dark:hover:bg-slate-900/20 transition-colors"
-          >
-            <div className="col-span-3">
-              <div className="flex flex-col items-start">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">{tenant.name}</span>
-                  {tenant.active ? (
-                    <Badge
-                      variant="outline"
-                      className="bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400 border-green-200 dark:border-green-800"
-                    >
-                      Active
-                    </Badge>
-                  ) : (
-                    <Badge
-                      variant="outline"
-                      className="bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400 border-red-200 dark:border-red-800"
-                    >
-                      Inactive
-                    </Badge>
-                  )}
-                </div>
-                <div className="text-sm text-muted-foreground mt-1 truncate max-w-56" title={tenant.tenantId}>
-                  ID: {tenant.tenantId}
-                </div>
-                <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                  <Calendar className="h-3 w-3" />
-                  {formatDate(tenant.onboardingDate)}
-                </div>
-              </div>
-            </div>
-
-            <div className="col-span-2">
-              <div className="flex flex-col items-start">
-                <div className="text-sm truncate">{tenant.dbName}</div>
-                <div className="text-xs text-muted-foreground mt-0.5 truncate">
-                  {tenant.dbUsername}
+        <div className="h-[calc(100vh-16rem)] overflow-y-auto">
+          {filteredTenants.map((tenant) => (
+            <div
+              key={tenant.id}
+              className="p-4 grid grid-cols-12 gap-4 items-center border-b last:border-b-0 hover:bg-slate-50 dark:hover:bg-slate-900/20 transition-colors"
+            >
+              <div className="col-span-3">
+                <div className="flex flex-col items-start">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{tenant.name}</span>
+                    {tenant.active ? (
+                      <Badge
+                        variant="outline"
+                        className="bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400 border-green-200 dark:border-green-800"
+                      >
+                        Active
+                      </Badge>
+                    ) : (
+                      <Badge
+                        variant="outline"
+                        className="bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400 border-red-200 dark:border-red-800"
+                      >
+                        Inactive
+                      </Badge>
+                    )}
+                  </div>
+                  <div
+                    className="text-sm text-muted-foreground mt-1 truncate max-w-56"
+                    title={tenant.tenantId}
+                  >
+                    ID: {tenant.tenantId}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
+                    {formatDate(tenant.onboardingDate)}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="col-span-2">
-              <div className="text-sm truncate flex items-start">{tenant.bucketName}</div>
-            </div>
+              <div className="col-span-2">
+                <div className="flex flex-col items-start">
+                  <div className="text-sm truncate">{tenant.dbName}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5 truncate">
+                    {tenant.dbUsername}
+                  </div>
+                </div>
+              </div>
 
-            <div className="col-span-3">
-              <div className="text-sm truncate">{tenant.cloudfrontUrl}</div>
-            </div>
+              <div className="col-span-2">
+                <div className="text-sm truncate flex items-start">
+                  {tenant.bucketName}
+                </div>
+              </div>
 
-            <div className="col-span-2 flex justify-end">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleShowMore(tenant)}
-                className="gap-1"
-              >
-                Details
-                <ExternalLink className="h-3.5 w-3.5" />
-              </Button>
+              <div className="col-span-3">
+                <div className="text-sm truncate">{tenant.cloudfrontUrl}</div>
+              </div>
+
+              <div className="col-span-2 flex justify-end">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleShowMore(tenant)}
+                  className="gap-1"
+                >
+                  Details
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </Button>
+              </div>
             </div>
-          </div>
-        ))}</div>
+          ))}
+        </div>
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -241,118 +273,120 @@ export default function TenantDashboard() {
                 )}
               </DialogTitle>
               <DialogDescription>
-                Complete configuration details for tenant ID:{' '}
+                Complete configuration details for tenant ID:{" "}
                 {selectedTenant.tenantId}
               </DialogDescription>
             </DialogHeader>
-<div className='h-[calc(100vh-10rem)] overflow-y-auto'>
-            <div className="grid gap-6 py-4">
-              <div className="grid md:grid-cols-2 gap-x-12 gap-y-6">
+            <div className="h-[calc(100vh-10rem)] overflow-y-auto">
+              <div className="grid gap-6 py-4">
+                <div className="grid md:grid-cols-2 gap-x-12 gap-y-6">
+                  <div>
+                    <h3 className="text-sm font-medium flex items-center gap-2 mb-3">
+                      <User className="h-4 w-4 text-slate-500" />
+                      Tenant Information
+                    </h3>
+                    <dl className="grid grid-cols-[120px_1fr] gap-2 text-sm">
+                      <dt className="text-muted-foreground">ID:</dt>
+                      <dd>{selectedTenant.id}</dd>
+                      <dt className="text-muted-foreground">Name:</dt>
+                      <dd>{selectedTenant.name}</dd>
+                      <dt className="text-muted-foreground">Email:</dt>
+                      <dd>{selectedTenant.email}</dd>
+                      <dt className="text-muted-foreground">Tenant ID:</dt>
+                      <dd>{selectedTenant.tenantId}</dd>
+                      <dt className="text-muted-foreground">Status:</dt>
+                      <dd>{selectedTenant.active ? "Active" : "Inactive"}</dd>
+                    </dl>
+                  </div>
+
+                  <div>
+                    <h3 className="text-sm font-medium flex items-center gap-2 mb-3">
+                      <Calendar className="h-4 w-4 text-slate-500" />
+                      Dates
+                    </h3>
+                    <dl className="grid grid-cols-[120px_1fr] gap-2 text-sm">
+                      <dt className="text-muted-foreground">Onboarded:</dt>
+                      <dd>{formatDate(selectedTenant.onboardingDate)}</dd>
+                      <dt className="text-muted-foreground">Created:</dt>
+                      <dd>{formatDate(selectedTenant.createdOn)}</dd>
+                      <dt className="text-muted-foreground">Created By:</dt>
+                      <dd>{selectedTenant.createdBy || "System"}</dd>
+                      <dt className="text-muted-foreground">Updated:</dt>
+                      <dd>
+                        {selectedTenant.updatedOn
+                          ? formatDate(selectedTenant.updatedOn)
+                          : "Never"}
+                      </dd>
+                    </dl>
+                  </div>
+                </div>
+
+                <Separator />
+
                 <div>
                   <h3 className="text-sm font-medium flex items-center gap-2 mb-3">
-                    <User className="h-4 w-4 text-slate-500" />
-                    Tenant Information
+                    <Database className="h-4 w-4 text-slate-500" />
+                    Database Configuration
                   </h3>
-                  <dl className="grid grid-cols-[120px_1fr] gap-2 text-sm">
-                    <dt className="text-muted-foreground">ID:</dt>
-                    <dd>{selectedTenant.id}</dd>
-                    <dt className="text-muted-foreground">Name:</dt>
-                    <dd>{selectedTenant.name}</dd>
-                    <dt className="text-muted-foreground">Email:</dt>
-                    <dd>{selectedTenant.email}</dd>
-                    <dt className="text-muted-foreground">Tenant ID:</dt>
-                    <dd>{selectedTenant.tenantId}</dd>
-                    <dt className="text-muted-foreground">Status:</dt>
-                    <dd>{selectedTenant.active ? 'Active' : 'Inactive'}</dd>
+                  <dl className="grid md:grid-cols-2 gap-x-12 gap-y-2 text-sm">
+                    <div className="space-y-2">
+                      <div>
+                        <dt className="text-muted-foreground">
+                          Database Name:
+                        </dt>
+                        <dd className="font-mono text-xs bg-slate-100 dark:bg-slate-800 p-1.5 rounded mt-1">
+                          {selectedTenant.dbName}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-muted-foreground">Username:</dt>
+                        <dd className="font-mono text-xs bg-slate-100 dark:bg-slate-800 p-1.5 rounded mt-1">
+                          {selectedTenant.dbUsername}
+                        </dd>
+                      </div>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Connection URI:</dt>
+                      <dd className="font-mono text-xs bg-slate-100 dark:bg-slate-800 p-1.5 rounded mt-1 break-all">
+                        {selectedTenant.dbUri}
+                      </dd>
+                    </div>
                   </dl>
                 </div>
 
+                <Separator />
+
                 <div>
                   <h3 className="text-sm font-medium flex items-center gap-2 mb-3">
-                    <Calendar className="h-4 w-4 text-slate-500" />
-                    Dates
+                    <Server className="h-4 w-4 text-slate-500" />
+                    Storage Configuration
                   </h3>
-                  <dl className="grid grid-cols-[120px_1fr] gap-2 text-sm">
-                    <dt className="text-muted-foreground">Onboarded:</dt>
-                    <dd>{formatDate(selectedTenant.onboardingDate)}</dd>
-                    <dt className="text-muted-foreground">Created:</dt>
-                    <dd>{formatDate(selectedTenant.createdOn)}</dd>
-                    <dt className="text-muted-foreground">Created By:</dt>
-                    <dd>{selectedTenant.createdBy || 'System'}</dd>
-                    <dt className="text-muted-foreground">Updated:</dt>
-                    <dd>
-                      {selectedTenant.updatedOn
-                        ? formatDate(selectedTenant.updatedOn)
-                        : 'Never'}
-                    </dd>
+                  <dl className="grid md:grid-cols-2 gap-x-12 gap-y-2 text-sm">
+                    <div>
+                      <dt className="text-muted-foreground">Bucket Name:</dt>
+                      <dd className="font-mono text-xs bg-slate-100 dark:bg-slate-800 p-1.5 rounded mt-1">
+                        {selectedTenant.bucketName}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">CDN URL:</dt>
+                      <dd className="font-mono text-xs bg-slate-100 dark:bg-slate-800 p-1.5 rounded mt-1 break-all">
+                        {selectedTenant.cloudfrontUrl}
+                      </dd>
+                    </div>
                   </dl>
                 </div>
-              </div>
 
-              <Separator />
+                <Separator />
 
-              <div>
-                <h3 className="text-sm font-medium flex items-center gap-2 mb-3">
-                  <Database className="h-4 w-4 text-slate-500" />
-                  Database Configuration
-                </h3>
-                <dl className="grid md:grid-cols-2 gap-x-12 gap-y-2 text-sm">
-                  <div className="space-y-2">
-                    <div>
-                      <dt className="text-muted-foreground">Database Name:</dt>
-                      <dd className="font-mono text-xs bg-slate-100 dark:bg-slate-800 p-1.5 rounded mt-1">
-                        {selectedTenant.dbName}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-muted-foreground">Username:</dt>
-                      <dd className="font-mono text-xs bg-slate-100 dark:bg-slate-800 p-1.5 rounded mt-1">
-                        {selectedTenant.dbUsername}
-                      </dd>
-                    </div>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Shield className="h-4 w-4" />
+                    Sensitive information is masked for security
                   </div>
-                  <div>
-                    <dt className="text-muted-foreground">Connection URI:</dt>
-                    <dd className="font-mono text-xs bg-slate-100 dark:bg-slate-800 p-1.5 rounded mt-1 break-all">
-                      {selectedTenant.dbUri}
-                    </dd>
-                  </div>
-                </dl>
-              </div>
-
-              <Separator />
-
-              <div>
-                <h3 className="text-sm font-medium flex items-center gap-2 mb-3">
-                  <Server className="h-4 w-4 text-slate-500" />
-                  Storage Configuration
-                </h3>
-                <dl className="grid md:grid-cols-2 gap-x-12 gap-y-2 text-sm">
-                  <div>
-                    <dt className="text-muted-foreground">Bucket Name:</dt>
-                    <dd className="font-mono text-xs bg-slate-100 dark:bg-slate-800 p-1.5 rounded mt-1">
-                      {selectedTenant.bucketName}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">CDN URL:</dt>
-                    <dd className="font-mono text-xs bg-slate-100 dark:bg-slate-800 p-1.5 rounded mt-1 break-all">
-                      {selectedTenant.cloudfrontUrl}
-                    </dd>
-                  </div>
-                </dl>
-              </div>
-
-              <Separator />
-
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Shield className="h-4 w-4" />
-                  Sensitive information is masked for security
                 </div>
-                
               </div>
-            </div></div>
+            </div>
           </DialogContent>
         )}
       </Dialog>
