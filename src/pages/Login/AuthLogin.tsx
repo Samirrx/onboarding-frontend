@@ -75,7 +75,8 @@ function AuthLogin() {
       if (response?.status) {
         navigate('/');
         notify.success('Login successful');
-      }
+        localStorage.setItem('current-user', data?.username);
+     }
 
       console.log('Login Response:', response);
       if (response.statusCode === 400) {

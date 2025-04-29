@@ -1,10 +1,17 @@
-import { useState } from 'react';
+import { useState } from "react";
 
-import { ArrowLeft, ArrowRight, Plus, Trash2, Mail } from 'lucide-react';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-
-import { Button } from '@/components/ui/button';
+import { ArrowLeft, ArrowRight, Plus, Trash2, Mail } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface TeamMember {
   id: string;
@@ -23,14 +30,14 @@ export function InviteTeamStep({
   formData,
   updateFormData,
   onNext,
-  onBack
+  onBack,
 }: InviteTeamStepProps) {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>(
     Array.isArray(formData.teamMembers) ? formData.teamMembers : []
   );
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   // const [role, setRole] = useState('admin');
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const validateEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -38,17 +45,17 @@ export function InviteTeamStep({
 
   const handleAddMember = () => {
     if (!email) {
-      setError('Email is required');
+      setError("Email is required");
       return;
     }
 
     if (!validateEmail(email)) {
-      setError('Please enter a valid email address');
+      setError("Please enter a valid email address");
       return;
     }
 
     if (teamMembers.some((member) => member.email === email)) {
-      setError('This email has already been added');
+      setError("This email has already been added");
       return;
     }
 
@@ -63,9 +70,9 @@ export function InviteTeamStep({
     updateFormData({ teamMembers: updatedMembers });
 
     // Reset form
-    setEmail('');
+    setEmail("");
     // setRole('admin');
-    setError('');
+    setError("");
   };
 
   const handleRemoveMember = (id: string) => {
@@ -93,7 +100,9 @@ export function InviteTeamStep({
         <div className="space-y-4">
           <div className="flex gap-4 sm:grid-cols-[1fr,auto,auto]">
             <div className="space-y-2 w-full">
-              <Label htmlFor="email">Email Address</Label>
+              <Label htmlFor="email">Email Address
+              {<span className="text-red-500">*</span>}
+              </Label>
               <Input
                 id="email"
                 type="email"
@@ -101,7 +110,7 @@ export function InviteTeamStep({
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
-                  setError('');
+                  setError("");
                 }}
                 disabled={teamMembers.length >= 1}
               />
@@ -170,6 +179,9 @@ export function InviteTeamStep({
                         {member.role.charAt(0).toUpperCase() +
                           member.role.slice(1)}
                       </Badge> */}
+                      <Badge variant="outline" className="mt-1">
+                        {"Member".charAt(0).toUpperCase() + "Member".slice(1)}
+                      </Badge>
                     </div>
                   </div>
                   <Button

@@ -29,7 +29,11 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
     try {
       const response = await addTenant(data);
       if (response?.status) {
-        navigate("/");
+        navigate("/", {
+          state:{
+            environment: data.environment,
+          }
+        });
         notify.success("Please wait... Creating new tenant", {
           autoClose: 5000,
         });

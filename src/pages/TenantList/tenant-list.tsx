@@ -1,28 +1,41 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import {
   Calendar,
   Database,
   ExternalLink,
   Server,
   Shield,
-  User
-} from 'lucide-react';
-import { format } from 'date-fns';
+  User,
+} from "lucide-react";
+import { format } from "date-fns";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
+
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { fetchTenantList } from '@/services/controllers/onboarding';
-import { useNavigate } from 'react-router-dom';
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Label } from "@/components/ui/label";
+import { fetchTenantList } from "@/services/controllers/onboarding";
+import { updateTenant } from "@/services/controllers/onboarding";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { Input } from "@/components/ui/input";
 
 interface Tenant {
   id: number;
@@ -46,31 +59,38 @@ interface Tenant {
 export default function TenantDashboard() {
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { state } = location;
+  const [env, setEnv] = useState(state?.environment.toLowerCase() || "dev");
+  const [isActive, setIsActive] = useState(false);
 
-  const fetchTenantsLists = async () => {
-    try {
-      const response = await fetchTenantList();
-      console.log('Tenants List Response:', response);
-      setTenants(response?.result);
-    } catch (error) {
-      console.error('Error fetching tenants:', error);
-    }
-  };
   useEffect(() => {
-    fetchTenantsLists();
-  }, []);
+    const fetchTenantsLists = async () => {
+      try {
+        const response = await fetchTenantList(env);
+        setTenants(response?.result || []);
+      } catch (error) {
+        console.error("Failed to fetch tenants", error);
+      }
+    };
+
+    if (env) {
+      fetchTenantsLists();
+    }
+  }, [env]);
 
   const handleShowMore = (tenant: Tenant) => {
     setSelectedTenant(tenant);
+    setIsActive(tenant.active);
     setIsDialogOpen(true);
   };
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return 'N/A';
-    return format(new Date(dateString), 'MMM d, yyyy');
+    if (!dateString) return "N/A";
+    return format(new Date(dateString), "MMM d, yyyy");
   };
 
   const filteredTenants = tenants?.filter((tenant) => {
@@ -98,7 +118,7 @@ export default function TenantDashboard() {
 
         <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
           <div className="relative">
-            <input
+            <Input
               type="text"
               placeholder="Search tenants..."
               value={searchQuery}
@@ -120,10 +140,27 @@ export default function TenantDashboard() {
               />
             </svg>
           </div>
+          <div className="flex items-center gap-2">
+            <Select
+              value={env}
+              onValueChange={(value) => {
+                setEnv(value);
+              }}
+            >
+              <SelectTrigger id="env" className="w-32">
+                <SelectValue placeholder="Select environment" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="dev">Dev</SelectItem>
+                <SelectItem value="preprod">Preprod</SelectItem>
+                <SelectItem value="app">App</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
           <Button
             className="gap-2"
-            onClick={() => navigate('/onboarding-flow')}
+            onClick={() => navigate("/onboarding-flow")}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -234,21 +271,52 @@ export default function TenantDashboard() {
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         {selectedTenant && (
-          <DialogContent className="max-w-5xl sm:max-w-5xl w-5xl ">
+          <DialogContent className="max-w-5xl sm:max-w-5xl w-5xl">
             <DialogHeader>
               <DialogTitle className="text-2xl flex items-center gap-2">
                 {selectedTenant.name}
-                {selectedTenant.active && (
+                <div className="flex items-center gap-2">
                   <Badge
-                    variant="outline"
-                    className="bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400 border-green-200 dark:border-green-800"
+                    className={
+                      isActive
+                        ? "bg-green-50 text-green-700"
+                        : "bg-red-50 text-red-700"
+                    }
                   >
-                    Active
+                    {isActive ? "Active" : "Inactive"}
                   </Badge>
-                )}
+                  <Switch
+                    checked={isActive}
+                    onCheckedChange={async (checked) => {
+                      setIsActive(checked);
+
+                      if (selectedTenant) {
+                        try {
+                          await updateTenant(
+                            selectedTenant.tenantId,
+                            checked,
+                            env
+                          );
+                          setTenants((prevTenants) =>
+                            prevTenants.map((tenant) =>
+                              tenant.id === selectedTenant.id
+                                ? { ...tenant, active: checked }
+                                : tenant
+                            )
+                          );
+                        } catch (error) {
+                          console.error(
+                            "Failed to update tenant status",
+                            error
+                          );
+                        }
+                      }
+                    }}
+                  />
+                </div>
               </DialogTitle>
               <DialogDescription>
-                Complete configuration details for tenant ID:{' '}
+                Complete configuration details for tenant ID:{" "}
                 {selectedTenant.tenantId}
               </DialogDescription>
             </DialogHeader>
@@ -270,7 +338,7 @@ export default function TenantDashboard() {
                       <dt className="text-muted-foreground">Tenant ID:</dt>
                       <dd>{selectedTenant.tenantId}</dd>
                       <dt className="text-muted-foreground">Status:</dt>
-                      <dd>{selectedTenant.active ? 'Active' : 'Inactive'}</dd>
+                      <dd>{selectedTenant.active ? "Active" : "Inactive"}</dd>
                     </dl>
                   </div>
 
@@ -285,12 +353,12 @@ export default function TenantDashboard() {
                       <dt className="text-muted-foreground">Created:</dt>
                       <dd>{formatDate(selectedTenant.createdOn)}</dd>
                       <dt className="text-muted-foreground">Created By:</dt>
-                      <dd>{selectedTenant.createdBy || 'System'}</dd>
+                      <dd>{selectedTenant.createdBy || "System"}</dd>
                       <dt className="text-muted-foreground">Updated:</dt>
                       <dd>
                         {selectedTenant.updatedOn
                           ? formatDate(selectedTenant.updatedOn)
-                          : 'Never'}
+                          : "Never"}
                       </dd>
                     </dl>
                   </div>
