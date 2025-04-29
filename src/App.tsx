@@ -5,16 +5,16 @@ import { ToastProvider } from '@/hooks/toastUtils';
 import store from '@/redux/store';
 import { Provider } from 'react-redux';
 
+
 function App() {
+  
   return (
-    <>
-      <BrowserRouter>
-        <Provider store={store}>
-          <Layout />
-          <ToastProvider />
-        </Provider>
-      </BrowserRouter>
-    </>
+    <BrowserRouter>
+      <Provider store={store}>
+        <Layout />
+        <ToastProvider />
+      </Provider>
+    </BrowserRouter>
   );
 }
 

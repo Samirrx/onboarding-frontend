@@ -18,10 +18,24 @@ import {
 import { NavUser } from './nav-user';
 
 // This is sample data.
+
+
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+
+function getFirstNameFromEmail(email: string): string {
+  const username: string = email?.split('@')[0];
+  const firstName: string = username?.split('.')[0];
+  return (
+    firstName?.charAt(0).toUpperCase() + firstName?.slice(1).toLowerCase()
+  );
+}
+
+const currentUser = localStorage.getItem('current-user');
+
 const data = {
   user: {
-    name: 'shadcn',
-    email: 'm@example.com',
+    name: getFirstNameFromEmail(currentUser||'m@example.com'),
+    email: currentUser,
     avatar: 'https://ui.shadcn.com/avatars/shadcn.jpg'
   },
   versions: ['1.0.1', '1.1.0-alpha', '2.0.0-beta1'],
@@ -43,7 +57,6 @@ const data = {
   ]
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props}>
       <SidebarHeader>

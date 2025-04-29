@@ -57,21 +57,33 @@ export default function TenantDashboard() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [tenants, setTenants] = useState<Tenant[]>([]);
-  const [devEnviroment, setDevEnvironment] = useState("Dev");
+  const [env, setEnv] = useState("");
   const navigate = useNavigate();
 
-  const fetchTenantsLists = async () => {
-    try {
-      const response = await fetchTenantList();
-      console.log("Tenants List Response:", response);
-      setTenants(response);
-    } catch (error) {
-      console.error("Error fetching tenants:", error);
-    }
-  };
+  
+
+
   useEffect(() => {
-    fetchTenantsLists();
-  }, []);
+    const fetchTenantsLists = async () => {
+      try {
+        const response = await fetchTenantList(env);
+        setTenants(response?.result || []);
+      } catch (error) {
+        console.error("Failed to fetch tenants", error);
+      }
+    };
+
+    if(env){
+      fetchTenantsLists ();
+    }
+  }, [env]);
+
+  const storedEnv = localStorage.getItem("env-type") || "dev";
+
+  useEffect(() => {
+    setEnv(storedEnv);
+  }, [storedEnv]);
+
 
   const handleShowMore = (tenant: Tenant) => {
     setSelectedTenant(tenant);
@@ -130,22 +142,20 @@ export default function TenantDashboard() {
             </svg>
           </div>
           <div className="flex items-center gap-2">
-            <Select value={devEnviroment} onValueChange={setDevEnvironment}>
-              <SelectTrigger
-                id="devEnviroment"
-                className={
-                  "w-32"
-                }
-              >
+            <Select value={env} onValueChange={(value) => {setEnv(value);
+              localStorage.setItem('env-type', value);
+            }}>
+              <SelectTrigger id="env" className="w-32">
                 <SelectValue placeholder="Select environment" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Dev">Dev</SelectItem>
-                <SelectItem value="Preprod">Preprod</SelectItem>
+                <SelectItem value="dev">Dev</SelectItem>
+                <SelectItem value="preprod">Preprod</SelectItem>
                 <SelectItem value="App">App</SelectItem>
               </SelectContent>
             </Select>
           </div>
+
           <Button
             className="gap-2"
             onClick={() => navigate("/onboarding-flow")}
