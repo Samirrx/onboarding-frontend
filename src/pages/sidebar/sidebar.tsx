@@ -61,8 +61,7 @@ const data = {
     <Sidebar {...props}>
       <SidebarHeader>
         <VersionSwitcher
-          versions={data.versions}
-          defaultVersion={data.versions[0]}
+        // ts-ignore
         />
         <SearchForm />
       </SidebarHeader>

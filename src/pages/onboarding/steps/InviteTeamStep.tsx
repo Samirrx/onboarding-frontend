@@ -61,7 +61,7 @@ export function InviteTeamStep({
 
     const newMember: TeamMember = {
       id: Date.now().toString(),
-      email,
+      email
       // role
     };
 

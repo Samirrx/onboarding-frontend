@@ -60,9 +60,15 @@ export default function TenantDashboard() {
   const [env, setEnv] = useState("");
   const navigate = useNavigate();
 
-  
-
-
+  const fetchTenantsLists = async () => {
+    try {
+      const response = await fetchTenantList();
+      console.log('Tenants List Response:', response);
+      setTenants(response?.result);
+    } catch (error) {
+      console.error('Error fetching tenants:', error);
+    }
+  };
   useEffect(() => {
     const fetchTenantsLists = async () => {
       try {
@@ -95,8 +101,9 @@ export default function TenantDashboard() {
     return format(new Date(dateString), "MMM d, yyyy");
   };
 
-  const filteredTenants = tenants.filter((tenant) => {
-    const searchLower = searchQuery.toLowerCase();
+  const filteredTenants = tenants?.filter((tenant) => {
+    const searchLower = searchQuery?.toLowerCase();
+    if (!searchLower) return true;
     return (
       tenant.name.toLowerCase().includes(searchLower) ||
       tenant.tenantId.toLowerCase().includes(searchLower) ||
@@ -188,13 +195,13 @@ export default function TenantDashboard() {
           <div className="col-span-2 text-right pr-6">Actions</div>
         </div>
 
-        {filteredTenants.length === 0 && (
+        {filteredTenants?.length === 0 && (
           <div className="p-8 text-center text-muted-foreground">
             No tenants found matching your search criteria.
           </div>
         )}
         <div className="h-[calc(100vh-16rem)] overflow-y-auto">
-          {filteredTenants.map((tenant) => (
+          {filteredTenants?.map((tenant) => (
             <div
               key={tenant.id}
               className="p-4 grid grid-cols-12 gap-4 items-center border-b last:border-b-0 hover:bg-slate-50 dark:hover:bg-slate-900/20 transition-colors"
@@ -305,7 +312,7 @@ export default function TenantDashboard() {
                       <dt className="text-muted-foreground">Tenant ID:</dt>
                       <dd>{selectedTenant.tenantId}</dd>
                       <dt className="text-muted-foreground">Status:</dt>
-                      <dd>{selectedTenant.active ? "Active" : "Inactive"}</dd>
+                      <dd>{selectedTenant.active ? 'Active' : 'Inactive'}</dd>
                     </dl>
                   </div>
 
@@ -320,12 +327,12 @@ export default function TenantDashboard() {
                       <dt className="text-muted-foreground">Created:</dt>
                       <dd>{formatDate(selectedTenant.createdOn)}</dd>
                       <dt className="text-muted-foreground">Created By:</dt>
-                      <dd>{selectedTenant.createdBy || "System"}</dd>
+                      <dd>{selectedTenant.createdBy || 'System'}</dd>
                       <dt className="text-muted-foreground">Updated:</dt>
                       <dd>
                         {selectedTenant.updatedOn
                           ? formatDate(selectedTenant.updatedOn)
-                          : "Never"}
+                          : 'Never'}
                       </dd>
                     </dl>
                   </div>
