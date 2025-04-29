@@ -287,14 +287,29 @@ export default function TenantDashboard() {
                   </Badge>
                   <Switch
                     checked={isActive}
-                    onCheckedChange={(checked) => {
-                      try {
-                        if (selectedTenant) {
-                          updateTenant(selectedTenant.tenantId, checked, env);
+                    onCheckedChange={async (checked) => {
+                      setIsActive(checked);
+
+                      if (selectedTenant) {
+                        try {
+                          await updateTenant(
+                            selectedTenant.tenantId,
+                            checked,
+                            env
+                          );
+                          setTenants((prevTenants) =>
+                            prevTenants.map((tenant) =>
+                              tenant.id === selectedTenant.id
+                                ? { ...tenant, active: checked }
+                                : tenant
+                            )
+                          );
+                        } catch (error) {
+                          console.error(
+                            "Failed to update tenant status",
+                            error
+                          );
                         }
-                        setIsActive(checked);
-                      } catch (error) {
-                        console.error("Failed to update tenant status", error);
                       }
                     }}
                   />
