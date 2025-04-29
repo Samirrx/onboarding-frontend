@@ -18,10 +18,10 @@ export const addTenant = async (data) => {
   return response;
 };
 
-export const updateTenantStatus = async (tenantId, isActive) => {
+export const updateTenant = async (tenantId, isActive) => {
   const response = await makeHttpCall({
-    method: 'PATCH',
-    url: `/updateTenantStatus/${tenantId}`,
+    method: 'PUT',
+    url: `/updateTenant/${tenantId}`,
     data: {isActive}
   })
   return response;

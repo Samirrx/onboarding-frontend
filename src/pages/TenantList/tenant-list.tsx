@@ -12,6 +12,7 @@ import {
 import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
+
 import {
   Dialog,
   DialogContent,
@@ -23,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { fetchTenantList } from "@/services/controllers/onboarding";
+import { updateTenant } from "@/services/controllers/onboarding";
 import {
   Select,
   SelectTrigger,
@@ -30,6 +32,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -62,7 +65,7 @@ export default function TenantDashboard() {
   const location = useLocation();
   const { state } = location;
   const [env, setEnv] = useState(state?.environment.toLowerCase() || "dev");
-
+  const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
     const fetchTenantsLists = async () => {
@@ -74,17 +77,17 @@ export default function TenantDashboard() {
       }
     };
 
-    if(env){
-      fetchTenantsLists ();
+    if (env) {
+      fetchTenantsLists();
     }
   }, [env]);
 
-
   const handleShowMore = (tenant: Tenant) => {
     setSelectedTenant(tenant);
+    setIsActive(tenant.active);
     setIsDialogOpen(true);
   };
-  
+
   const formatDate = (dateString: string) => {
     if (!dateString) return "N/A";
     return format(new Date(dateString), "MMM d, yyyy");
@@ -138,8 +141,12 @@ export default function TenantDashboard() {
             </svg>
           </div>
           <div className="flex items-center gap-2">
-            <Select value={env} onValueChange={(value) => {setEnv(value);
-            }}>
+            <Select
+              value={env}
+              onValueChange={(value) => {
+                setEnv(value);
+              }}
+            >
               <SelectTrigger id="env" className="w-32">
                 <SelectValue placeholder="Select environment" />
               </SelectTrigger>
@@ -264,18 +271,34 @@ export default function TenantDashboard() {
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         {selectedTenant && (
-          <DialogContent className="max-w-5xl sm:max-w-5xl w-5xl ">
+          <DialogContent className="max-w-5xl sm:max-w-5xl w-5xl">
             <DialogHeader>
               <DialogTitle className="text-2xl flex items-center gap-2">
                 {selectedTenant.name}
-                {selectedTenant.active && (
+                <div className="flex items-center gap-2">
                   <Badge
-                    variant="outline"
-                    className="bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400 border-green-200 dark:border-green-800"
+                    className={
+                      isActive
+                        ? "bg-green-50 text-green-700"
+                        : "bg-red-50 text-red-700"
+                    }
                   >
-                    Active
+                    {isActive ? "Active" : "Inactive"}
                   </Badge>
-                )}
+                  <Switch
+                    checked={isActive}
+                    onCheckedChange={(checked) => {
+                      try {
+                        if (selectedTenant) {
+                          updateTenant(selectedTenant.tenantId, checked, env);
+                        }
+                        setIsActive(checked);
+                      } catch (error) {
+                        console.error("Failed to update tenant status", error);
+                      }
+                    }}
+                  />
+                </div>
               </DialogTitle>
               <DialogDescription>
                 Complete configuration details for tenant ID:{" "}
@@ -300,7 +323,7 @@ export default function TenantDashboard() {
                       <dt className="text-muted-foreground">Tenant ID:</dt>
                       <dd>{selectedTenant.tenantId}</dd>
                       <dt className="text-muted-foreground">Status:</dt>
-                      <dd>{selectedTenant.active ? 'Active' : 'Inactive'}</dd>
+                      <dd>{selectedTenant.active ? "Active" : "Inactive"}</dd>
                     </dl>
                   </div>
 
@@ -315,12 +338,12 @@ export default function TenantDashboard() {
                       <dt className="text-muted-foreground">Created:</dt>
                       <dd>{formatDate(selectedTenant.createdOn)}</dd>
                       <dt className="text-muted-foreground">Created By:</dt>
-                      <dd>{selectedTenant.createdBy || 'System'}</dd>
+                      <dd>{selectedTenant.createdBy || "System"}</dd>
                       <dt className="text-muted-foreground">Updated:</dt>
                       <dd>
                         {selectedTenant.updatedOn
                           ? formatDate(selectedTenant.updatedOn)
-                          : 'Never'}
+                          : "Never"}
                       </dd>
                     </dl>
                   </div>
