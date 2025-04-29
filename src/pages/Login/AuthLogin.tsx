@@ -76,7 +76,6 @@ function AuthLogin() {
         navigate('/');
         notify.success('Login successful');
         localStorage.setItem('current-user', data?.username);
-        localStorage.setItem('env-type', "dev");
      }
 
       console.log('Login Response:', response);

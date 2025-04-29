@@ -31,6 +31,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 
 interface Tenant {
@@ -57,18 +58,12 @@ export default function TenantDashboard() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [tenants, setTenants] = useState<Tenant[]>([]);
-  const [env, setEnv] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+  const { state } = location;
+  const [env, setEnv] = useState(state?.environment.toLowerCase() || "dev");
 
-  const fetchTenantsLists = async () => {
-    try {
-      const response = await fetchTenantList();
-      console.log('Tenants List Response:', response);
-      setTenants(response?.result);
-    } catch (error) {
-      console.error('Error fetching tenants:', error);
-    }
-  };
+
   useEffect(() => {
     const fetchTenantsLists = async () => {
       try {
@@ -84,18 +79,12 @@ export default function TenantDashboard() {
     }
   }, [env]);
 
-  const storedEnv = localStorage.getItem("env-type") || "dev";
-
-  useEffect(() => {
-    setEnv(storedEnv);
-  }, [storedEnv]);
-
 
   const handleShowMore = (tenant: Tenant) => {
     setSelectedTenant(tenant);
     setIsDialogOpen(true);
   };
-
+  
   const formatDate = (dateString: string) => {
     if (!dateString) return "N/A";
     return format(new Date(dateString), "MMM d, yyyy");
@@ -150,7 +139,6 @@ export default function TenantDashboard() {
           </div>
           <div className="flex items-center gap-2">
             <Select value={env} onValueChange={(value) => {setEnv(value);
-              localStorage.setItem('env-type', value);
             }}>
               <SelectTrigger id="env" className="w-32">
                 <SelectValue placeholder="Select environment" />
@@ -158,7 +146,7 @@ export default function TenantDashboard() {
               <SelectContent>
                 <SelectItem value="dev">Dev</SelectItem>
                 <SelectItem value="preprod">Preprod</SelectItem>
-                <SelectItem value="App">App</SelectItem>
+                <SelectItem value="app">App</SelectItem>
               </SelectContent>
             </Select>
           </div>

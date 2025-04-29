@@ -17,3 +17,12 @@ export const addTenant = async (data) => {
   });
   return response;
 };
+
+export const updateTenantStatus = async (tenantId, isActive) => {
+  const response = await makeHttpCall({
+    method: 'PATCH',
+    url: `/updateTenantStatus/${tenantId}`,
+    data: {isActive}
+  })
+  return response;
+}
