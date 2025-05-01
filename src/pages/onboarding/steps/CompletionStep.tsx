@@ -16,8 +16,10 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
+  const { companyLogo, ...rest } = formData;
+  
   const data = {
-    ...formData,
+    ...rest,
     modules: formData.modules.map((module: string) => module.toLowerCase()),
     teamMembers: formData.teamMembers[0]?.email || "",
   };
@@ -109,7 +111,7 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
           <div className="grid grid-cols-3 gap-1">
             <dt className="text-muted-foreground text-justify">Company Size:</dt>
             <dd className="col-span-2 font-medium text-justify">
-              {data.size}
+              {data.companySize}
             </dd>
           </div>
           <div className="grid grid-cols-3 gap-1">

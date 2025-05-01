@@ -21,7 +21,7 @@ function OnboardingFlow() {
     companyName: '',
     companyLogo: null,
     industry: '',
-    size: '',
+    companySize: '',
     teamMembers: "",
     modules: []
   });

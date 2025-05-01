@@ -32,7 +32,7 @@ export function CompanyDetailsStep({
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [companyName, setCompanyName] = useState(formData.companyName || "");
   const [industry, setIndustry] = useState(formData.industry || "");
-  const [size, setSize] = useState(formData.size || "1-10");
+  const [companySize, setCompanySize] = useState(formData.companySize || "1-10");
   const [environment, setEnvironment] = useState(formData.environment || "");
   const [email, setEmail] = useState(formData.email || "");
   const [phoneNumber, setPhoneNumber] = useState(formData.phoneNumber || "");
@@ -86,21 +86,21 @@ export function CompanyDetailsStep({
     const isValid =
       companyName.trim() &&
       industry &&
-      size &&
+      companySize &&
       environment &&
       instanceType &&
       email.trim() &&
       /^\S+@\S+\.\S+$/.test(email) &&
       phoneNumber.trim();
     setCanContinue(!!isValid);
-  }, [companyName, industry, environment, size, instanceType, email, phoneNumber]);
+  }, [companyName, industry, environment, companySize, instanceType, email, phoneNumber]);
 
   const handleSubmit = () => {
     if (validateForm()) {
       updateFormData({
         companyName,
         industry,
-        size,
+        companySize,
         environment,
         email,
         phoneNumber,
@@ -291,11 +291,11 @@ export function CompanyDetailsStep({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="size">Company Size</Label>
-        <Select value={size} onValueChange={setSize}>
+        <Label htmlFor="companySize">Company Size</Label>
+        <Select value={companySize} onValueChange={companySize}>
           <SelectTrigger
-            id="size"
-            className={errors.size ? "border-red-500 w-full" : "w-full"}
+            id="companySize"
+            className={errors.companySize ? "border-red-500 w-full" : "w-full"}
           >
             <SelectValue placeholder="Select company size" />
           </SelectTrigger>
@@ -308,7 +308,7 @@ export function CompanyDetailsStep({
             <SelectItem value="1000+">1000+ employees</SelectItem>
           </SelectContent>
         </Select>
-        {errors.size && <p className="text-sm text-red-500">{errors.size}</p>}
+        {errors.companySize && <p className="text-sm text-red-500">{errors.companySize}</p>}
       </div>
 
       <div className="flex justify-between pt-6">
