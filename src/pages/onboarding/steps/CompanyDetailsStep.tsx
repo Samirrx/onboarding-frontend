@@ -32,7 +32,7 @@ export function CompanyDetailsStep({
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [companyName, setCompanyName] = useState(formData.companyName || "");
   const [industry, setIndustry] = useState(formData.industry || "");
-  const [companySize, setCompanySize] = useState(formData.companySize || "1-10");
+  const [companySize, setcompanySize] = useState(formData.companySize || "1-10");
   const [environment, setEnvironment] = useState(formData.environment || "");
   const [email, setEmail] = useState(formData.email || "");
   const [phoneNumber, setPhoneNumber] = useState(formData.phoneNumber || "");
@@ -292,7 +292,7 @@ export function CompanyDetailsStep({
 
       <div className="space-y-2">
         <Label htmlFor="companySize">Company Size</Label>
-        <Select value={companySize} onValueChange={companySize}>
+        <Select value={companySize} onValueChange={setcompanySize}>
           <SelectTrigger
             id="companySize"
             className={errors.companySize ? "border-red-500 w-full" : "w-full"}
