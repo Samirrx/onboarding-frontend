@@ -12,7 +12,7 @@ export const fetchTenantList = async (env) => {
 export const addTenant = async (data) => {
   const response = await makeHttpCall({
     method: 'POST',
-    url: `/gghghhjaddTenant`,
+    url: `/addTenant`,
     data
   });
   return response;

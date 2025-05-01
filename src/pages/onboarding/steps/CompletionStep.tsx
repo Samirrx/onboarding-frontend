@@ -26,7 +26,7 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
     setLoading(true);
     try {
       const formDataToSend = new FormData();
-      formDataToSend.append("tenantDtl", data);
+      formDataToSend.append("tenantDtl", JSON.stringify(data));
   
       if (formData.companyLogo) {
         formDataToSend.append("companyLogo", formData.companyLogo);
