@@ -18,8 +18,6 @@ export function WorkspaceSetupStep({
   onBack
 }: WorkspaceSetupStepProps) {
   const [preferences, setPreferences] = useState({
-    theme: formData.workspacePreferences?.theme || 'light',
-    notifications: formData.workspacePreferences?.notifications !== false,
     modules: formData.workspacePreferences?.modules || []
   });
 
@@ -90,11 +88,6 @@ export function WorkspaceSetupStep({
 
   const handleSubmit = () => {
     updateFormData({
-      workspacePreferences: {
-        theme: preferences.theme,
-        notifications: preferences.notifications,
-        modules: preferences.modules
-      },
       modules: preferences.modules
     });
     onNext();

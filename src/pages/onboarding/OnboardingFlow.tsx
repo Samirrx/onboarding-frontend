@@ -23,11 +23,7 @@ function OnboardingFlow() {
     industry: '',
     size: '',
     teamMembers: "",
-    workspacePreferences: {
-      theme: 'light',
-      notifications: true,
-      modules: []
-    }
+    modules: []
   });
 
   const updateFormData = (data: Partial<typeof formData>) => {

@@ -21,23 +21,39 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
     modules: formData.modules.map((module: string) => module.toLowerCase()),
     teamMembers: formData.teamMembers[0]?.email || "",
   };
-
+  
   const submitTenant = async () => {
     setLoading(true);
-    console.log("Data to be sent:", data);
-
     try {
-      const response = await addTenant(data);
+      const formDataToSend = new FormData();
+      formDataToSend.append("environment", data.environment);
+      formDataToSend.append("instanceType", data.instanceType);
+      formDataToSend.append("companyName", data.companyName);
+      formDataToSend.append("email", data.email);
+      formDataToSend.append("phoneNumber", data.phoneNumber);
+      formDataToSend.append("industry", data.industry);
+      formDataToSend.append("size", data.size);
+      formDataToSend.append("teamMembers", data.teamMembers);
+      formDataToSend.append("modules", JSON.stringify(data.modules));
+  
+      if (formData.companyLogo) {
+        formDataToSend.append("companyLogo", formData.companyLogo);
+      }
+  
+      // Make API call using axios
+      const response = await addTenant(formDataToSend);
+  
       if (response?.status) {
         navigate("/", {
-          state:{
+          state: {
             environment: data.environment,
-          }
+          },
         });
         notify.success("Please wait... Creating new tenant", {
           autoClose: 5000,
         });
       }
+  
       console.log("Tenant added successfully:", response);
     } catch (error) {
       console.error("Error adding tenant:", error);
@@ -45,6 +61,7 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="space-y-6 py-6">
