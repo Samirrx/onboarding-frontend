@@ -26,21 +26,14 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
     setLoading(true);
     try {
       const formDataToSend = new FormData();
-      formDataToSend.append("environment", data.environment);
-      formDataToSend.append("instanceType", data.instanceType);
-      formDataToSend.append("companyName", data.companyName);
-      formDataToSend.append("email", data.email);
-      formDataToSend.append("phoneNumber", data.phoneNumber);
-      formDataToSend.append("industry", data.industry);
-      formDataToSend.append("size", data.size);
-      formDataToSend.append("teamMembers", data.teamMembers);
-      formDataToSend.append("modules", JSON.stringify(data.modules));
+      formDataToSend.append("tenantDtl", data);
   
       if (formData.companyLogo) {
         formDataToSend.append("companyLogo", formData.companyLogo);
       }
+      console.log("Form data to send:", formDataToSend);
   
-      // Make API call using axios
+      //Make API call using axios
       const response = await addTenant(formDataToSend);
   
       if (response?.status) {
