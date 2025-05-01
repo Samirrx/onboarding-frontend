@@ -1,8 +1,8 @@
-import axios from 'axios';
-import { getTimezone, getTimezoneOffset } from '../utils/helpers';
-import { notify } from '../hooks/toastUtils';
+import axios from "axios";
+import { getTimezone, getTimezoneOffset } from "../utils/helpers";
+import { notify } from "../hooks/toastUtils";
 const getApiEndpoint = () => {
-  return 'https://onboarding-api.dglide.com';
+  return "https://onboarding-api.dglide.com";
 };
 
 // Add request interceptor
@@ -10,12 +10,12 @@ axios.interceptors.request.use(
   (config) => {
     const timezone = getTimezone();
     const timezoneOffset = getTimezoneOffset();
-    const tokenDetail = JSON.parse(localStorage.getItem('auth-token'));
+    const tokenDetail = JSON.parse(localStorage.getItem("auth-token"));
 
-    config.headers['timezone'] = timezone;
-    config.headers['timezone-offset'] = timezoneOffset;
+    config.headers["timezone"] = timezone;
+    config.headers["timezone-offset"] = timezoneOffset;
     if (tokenDetail?.token) {
-      config.headers['Authorization'] = `Bearer ${tokenDetail.token}`;
+      config.headers["Authorization"] = `Bearer ${tokenDetail.token}`;
     }
     return config;
   },
@@ -29,7 +29,7 @@ axios.interceptors.response.use(
       return {
         data: res.data,
         headers: res.headers,
-        status: true
+        status: true,
       };
     }
   },
@@ -37,14 +37,14 @@ axios.interceptors.response.use(
     if (!error.response) {
       return Promise.reject({
         ...error,
-        message: 'Network error: Unable to reach API server',
-        status: false
+        message: "Network error: Unable to reach API server",
+        status: false,
       });
     }
     return Promise.reject({
       ...error,
-      message: error?.response?.data?.message || 'API failed',
-      status: false
+      message: error?.response?.data?.message || "API failed",
+      status: false,
     });
   }
 );
@@ -53,89 +53,96 @@ const errorHandler = (error) => {
   const { response } = error;
 
   if (response?.status === 502) {
-    window.location.href = '/maintenance';
+    window.location.href = "/maintenance";
   }
 
   if (!response || [403, 401, 302].includes(response.status)) {
-    localStorage.removeItem('auth-token');
-    window.location.href = '/login';
+    localStorage.removeItem("auth-token");
+    window.location.href = "/login";
     return {
       open: true,
-      message: 'Authentication required, redirecting to login.',
-      severity: 'error'
+      message: "Authentication required, redirecting to login.",
+      severity: "error",
     };
   }
 
   return {
     ...response?.data,
-    message: response?.data?.message || 'Something went wrong'
+    message: response?.data?.message || "Something went wrong",
   };
 };
 
 const makeHttpCall = async ({ headers = {}, ...options }) => {
   const API_ENDPOINT = getApiEndpoint();
-  const tokenDetail = JSON.parse(localStorage.getItem('auth-token'));
+  const tokenDetail = JSON.parse(localStorage.getItem("auth-token"));
 
   try {
+    // Token refresh logic (no changes)
     if (tokenDetail && tokenDetail?.expirationTime < Date.now()) {
-      console.log('Token expired ---- generating new');
+      console.log("Token expired ---- generating new");
       const refreshTokenURL = `${API_ENDPOINT}/user/refresh/token`;
 
       const response = await axios({
-        method: 'POST',
+        method: "POST",
         url: refreshTokenURL,
-        data: { token: tokenDetail?.token }
+        data: { token: tokenDetail?.token },
       });
 
       if (response.data.statusCode === 200) {
         localStorage.setItem(
-          'auth-token',
+          "auth-token",
           JSON.stringify(response.data.result)
         );
       } else {
         localStorage.clear();
-        window.location.href = '/login';
+        window.location.href = "/login";
         return;
       }
     }
 
-    if (!options.url.startsWith('http')) {
-      options.url = `${API_ENDPOINT.replace(/\/$/, '')}/${options.url.replace(
+    // Set full URL
+    if (!options.url.startsWith("http")) {
+      options.url = `${API_ENDPOINT.replace(/\/$/, "")}/${options.url.replace(
         /^\//,
-        ''
+        ""
       )}`;
     }
 
-    console.log('📡 Final Request URL:', options.url);
-    
+    console.log("📡 Final Request URL:", options.url);
 
+    const isFormData = options.data instanceof FormData;
     const result = await axios({
       ...options,
       headers: {
-        ...headers
-      }
+        ...headers,
+        ...(tokenDetail?.token && {
+          Authorization: `Bearer ${tokenDetail.token}`,
+        }),
+        ...(isFormData ? {} : { "Content-Type": "application/json" }),
+      },
     });
 
-    return result.data ? result.data : null;
+    return result.data || null;
   } catch (err) {
-    console.error('Axios call failed:', err);
+    console.error("Axios call failed:", err);
     return errorHandler(err);
   }
 };
+
 
 // ✅ Named export for specific API usage
 export const userLogin = async (credentials) => {
   try {
     const response = await makeHttpCall({
-      method: 'POST',
-      url: '/user/login',
+      method: "POST",
+      url: "/user/login",
       data: credentials,
-      headers: { username: credentials?.username }
+      headers: { username: credentials?.username },
     });
 
     if (response.status) {
       localStorage.setItem(
-        'auth-token',
+        "auth-token",
         JSON.stringify(response.result.tokenDetail)
       );
 
@@ -145,13 +152,13 @@ export const userLogin = async (credentials) => {
 
       // window.location.reload();
     } else {
-      notify.error(response?.message || 'Oops! Something went wrong');
+      notify.error(response?.message || "Oops! Something went wrong");
     }
 
     return response;
   } catch (error) {
-    notify.error('Login failed. Please try again.');
-    console.error('Login error:', error);
+    notify.error("Login failed. Please try again.");
+    console.error("Login error:", error);
     return null;
   }
 };

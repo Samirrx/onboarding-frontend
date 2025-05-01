@@ -16,28 +16,39 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
+  const { companyLogo, ...rest } = formData;
+  
   const data = {
-    ...formData,
+    ...rest,
     modules: formData.modules.map((module: string) => module.toLowerCase()),
     teamMembers: formData.teamMembers[0]?.email || "",
   };
-
+  
   const submitTenant = async () => {
     setLoading(true);
-    console.log("Data to be sent:", data);
-
     try {
-      const response = await addTenant(data);
+      const formDataToSend = new FormData();
+      formDataToSend.append("tenantDtl", JSON.stringify(data));
+  
+      if (formData.companyLogo) {
+        formDataToSend.append("companyLogo", formData.companyLogo);
+      }
+      console.log("Form data to send:", formDataToSend);
+  
+      //Make API call using axios
+      const response = await addTenant(formDataToSend);
+  
       if (response?.status) {
         navigate("/", {
-          state:{
+          state: {
             environment: data.environment,
-          }
+          },
         });
         notify.success("Please wait... Creating new tenant", {
           autoClose: 5000,
         });
       }
+  
       console.log("Tenant added successfully:", response);
     } catch (error) {
       console.error("Error adding tenant:", error);
@@ -45,6 +56,7 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="space-y-6 py-6">
@@ -99,7 +111,7 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
           <div className="grid grid-cols-3 gap-1">
             <dt className="text-muted-foreground text-justify">Company Size:</dt>
             <dd className="col-span-2 font-medium text-justify">
-              {data.size}
+              {data.companySize}
             </dd>
           </div>
           <div className="grid grid-cols-3 gap-1">
