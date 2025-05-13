@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 
@@ -18,8 +18,17 @@ export function WorkspaceSetupStep({
   onBack
 }: WorkspaceSetupStepProps) {
   const [preferences, setPreferences] = useState({
-    modules: formData.workspacePreferences?.modules || []
+    modules: formData.modules || formData.workspacePreferences?.modules || []
   });
+
+  // This effect keeps the local state in sync with formData if it changes
+  useEffect(() => { 
+    const modulesData = formData.modules || formData.workspacePreferences?.modules || [];
+    setPreferences(prev => ({
+      ...prev,
+      modules: modulesData
+    }));
+  }, [formData]);
 
   const modules = [
     {
