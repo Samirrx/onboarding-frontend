@@ -32,13 +32,31 @@ export function CompanyDetailsStep({
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [companyName, setCompanyName] = useState(formData.companyName || "");
   const [industry, setIndustry] = useState(formData.industry || "");
-  const [companySize, setcompanySize] = useState(formData.companySize || "1-10");
+  const [companySize, setcompanySize] = useState(
+    formData.companySize || "1-10"
+  );
   const [environment, setEnvironment] = useState(formData.environment || "");
   const [email, setEmail] = useState(formData.email || "");
   const [phoneNumber, setPhoneNumber] = useState(formData.phoneNumber || "");
   const [instanceType, setInstanceType] = useState(formData.instanceType || "");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [canContinue, setCanContinue] = useState(false);
+  const environmentOptions = ["Dev", "Preprod", "App"].sort();
+  const instanceOptions = ["Free", "Trial", "Paid", "Poc"].sort();
+  const industryOptions = [
+    { value: "technology", label: "Technology" },
+    { value: "healthcare", label: "Healthcare" },
+    { value: "finance", label: "Finance" },
+    { value: "education", label: "Education" },
+    { value: "retail", label: "Retail" },
+    { value: "manufacturing", label: "Manufacturing" },
+    { value: "other", label: "Other" },
+  ];
+  const sortedIndustries = industryOptions.sort((a, b) => {
+    if (a.label === "Other") return 1;
+    if (b.label === "Other") return -1;
+    return a.label.localeCompare(b.label);
+  });
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -65,7 +83,7 @@ export function CompanyDetailsStep({
     if (!environment) {
       newErrors.environment = "Please select an environment";
     }
-    if(!instanceType){
+    if (!instanceType) {
       newErrors.instanceType = "Please select an instance type";
     }
     if (!email.trim()) {
@@ -93,7 +111,15 @@ export function CompanyDetailsStep({
       /^\S+@\S+\.\S+$/.test(email) &&
       phoneNumber.trim();
     setCanContinue(!!isValid);
-  }, [companyName, industry, environment, companySize, instanceType, email, phoneNumber]);
+  }, [
+    companyName,
+    industry,
+    environment,
+    companySize,
+    instanceType,
+    email,
+    phoneNumber,
+  ]);
 
   const handleSubmit = () => {
     if (validateForm()) {
@@ -158,49 +184,54 @@ export function CompanyDetailsStep({
             Upload your company logo (optional)
           </p>
         </div>
+        <div className="space-y-2">
+          <Label htmlFor="environment">
+            Environment <span className="text-red-500">*</span>
+          </Label>
+          <Select value={environment} onValueChange={setEnvironment}>
+            <SelectTrigger
+              id="environment"
+              className={
+                errors.environment ? "border-red-500 w-full" : "w-full"
+              }
+            >
+              <SelectValue placeholder="Select environment" />
+            </SelectTrigger>
+            <SelectContent>
+              {environmentOptions.map((env) => (
+                <SelectItem key={env} value={env}>
+                  {env}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.environment && (
+            <p className="text-sm text-red-500">{errors.environment}</p>
+          )}
+        </div>
 
         <div className="space-y-2">
-        <Label htmlFor="environment">
-          Environment {<span className="text-red-500">*</span>}
-        </Label>
-        <Select value={environment} onValueChange={setEnvironment}>
-          <SelectTrigger
-            id="environment"
-            className={errors.environment ? "border-red-500 w-full" : "w-full"}
-          >
-            <SelectValue placeholder="Select environment" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Dev">Dev</SelectItem>
-            <SelectItem value="Preprod">Preprod</SelectItem>
-            <SelectItem value="App">App</SelectItem>
-          </SelectContent>
-        </Select>
-        {errors.environment && (
-          <p className="text-sm text-red-500">{errors.environment}</p>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="company-name">
-          Instance Type{<span className="text-red-500">*</span>}
-        </Label>
-        <Select value={instanceType} onValueChange={setInstanceType}>
-          <SelectTrigger
-            id="instanceType"
-            className={errors.instanceType ? "border-red-500 w-full" : "w-full"}
-          >
-            <SelectValue placeholder="Select instance type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Free">Free</SelectItem>
-            <SelectItem value="Trial">Trial</SelectItem>
-            <SelectItem value="Paid">Paid</SelectItem>
-            <SelectItem value="Poc">POC</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
+          <Label htmlFor="company-name">
+            Instance Type<span className="text-red-500">*</span>
+          </Label>
+          <Select value={instanceType} onValueChange={setInstanceType}>
+            <SelectTrigger
+              id="instanceType"
+              className={
+                errors.instanceType ? "border-red-500 w-full" : "w-full"
+              }
+            >
+              <SelectValue placeholder="Select instance type" />
+            </SelectTrigger>
+            <SelectContent>
+              {instanceOptions.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {type}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <div className="space-y-2">
           <Label htmlFor="company-name">
             Company Name {<span className="text-red-500">*</span>}
@@ -216,7 +247,6 @@ export function CompanyDetailsStep({
             <p className="text-sm text-red-500">{errors.companyName}</p>
           )}
         </div>
-
         <div className="space-y-2">
           <Label htmlFor="email">
             Email {<span className="text-red-500">*</span>}
@@ -233,7 +263,6 @@ export function CompanyDetailsStep({
             <p className="text-sm text-red-500">{errors.email}</p>
           )}
         </div>
-
         <div className="space-y-2">
           <Label htmlFor="phone">
             Phone Number <span className="text-red-500">*</span>
@@ -266,7 +295,7 @@ export function CompanyDetailsStep({
 
       <div className="space-y-2">
         <Label htmlFor="industry">
-          Industry {<span className="text-red-500">*</span>}
+          Industry <span className="text-red-500">*</span>
         </Label>
         <Select value={industry} onValueChange={setIndustry}>
           <SelectTrigger
@@ -276,13 +305,11 @@ export function CompanyDetailsStep({
             <SelectValue placeholder="Select industry" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="technology">Technology</SelectItem>
-            <SelectItem value="healthcare">Healthcare</SelectItem>
-            <SelectItem value="finance">Finance</SelectItem>
-            <SelectItem value="education">Education</SelectItem>
-            <SelectItem value="retail">Retail</SelectItem>
-            <SelectItem value="manufacturing">Manufacturing</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
+            {sortedIndustries.map((item) => (
+              <SelectItem key={item.value} value={item.value}>
+                {item.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         {errors.industry && (
@@ -308,7 +335,9 @@ export function CompanyDetailsStep({
             <SelectItem value="1000+">1000+ employees</SelectItem>
           </SelectContent>
         </Select>
-        {errors.companySize && <p className="text-sm text-red-500">{errors.companySize}</p>}
+        {errors.companySize && (
+          <p className="text-sm text-red-500">{errors.companySize}</p>
+        )}
       </div>
 
       <div className="flex justify-between pt-6">
