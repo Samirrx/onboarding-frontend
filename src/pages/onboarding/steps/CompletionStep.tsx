@@ -20,7 +20,7 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
   
   const data = {
     ...rest,
-    modules: formData.modules.map((module: string) => module.toLowerCase()),
+    modules: formData.modules.map((module: string) => module),
     teamMembers: formData.teamMembers[0]?.email || "",
   };
   
@@ -125,8 +125,9 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
             <dd className="col-span-2 font-medium text-justify">
               {data.modules
                 .map(
-                  (module: string) =>
-                    module.charAt(0).toUpperCase() + module.slice(1)
+                  (module: string)=> {
+                 return   module
+                  }
                 )
                 .join(", ")}
             </dd>

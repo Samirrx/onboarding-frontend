@@ -81,12 +81,12 @@ export function WorkspaceSetupStep({
     }
   ];
 
-  const handleModuleToggle = (moduleId: string) => {
+  const handleModuleToggle = (name: string) => {
     setPreferences((prev) => {
-      const isSelected = prev.modules.includes(moduleId);
+      const isSelected = prev.modules.includes(name);
       const updatedModules = isSelected
-        ? prev.modules.filter((id: string) => id !== moduleId)
-        : [...prev.modules, moduleId];
+        ? prev.modules.filter((n: string) => n !== name)
+        : [...prev.modules, name];
 
       return {
         ...prev,
@@ -125,15 +125,15 @@ export function WorkspaceSetupStep({
               <div key={module.id} className="space-y-2">
                 <div
                   className={`flex items-start space-x-3 rounded-md border p-4 cursor-pointer transition-colors ${
-                    preferences.modules.includes(module.id)
+                    preferences.modules.includes(module.name)
                       ? 'border-primary bg-primary/5'
                       : 'border-border hover:bg-accent'
                   }`}
-                  onClick={() => handleModuleToggle(module.id)}
+                  onClick={() => handleModuleToggle(module.name)}
                 >
                   <div
                     className={`mt-0.5 rounded-full p-1 ${
-                      preferences.modules.includes(module.id)
+                      preferences.modules.includes(module.name)
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-muted text-muted-foreground'
                     }`}
