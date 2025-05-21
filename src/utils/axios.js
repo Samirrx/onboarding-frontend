@@ -80,12 +80,12 @@ const makeHttpCall = async ({ headers = {}, ...options }) => {
     // Token refresh logic (no changes)
     if (tokenDetail && tokenDetail?.expirationTime < Date.now()) {
       console.log("Token expired ---- generating new");
-      const refreshTokenURL = `${API_ENDPOINT}/user/refresh/token`;
-
+      const refreshTokenURL = `${API_ENDPOINT}/user/refresh-token`;
+      console.log(refrshTokenURL);
       const response = await axios({
         method: "POST",
         url: refreshTokenURL,
-        data: { token: tokenDetail?.token },
+        data: { refreshToken: tokenDetail?.refreshToken },
       });
 
       if (response.data.statusCode === 200) {
@@ -93,6 +93,7 @@ const makeHttpCall = async ({ headers = {}, ...options }) => {
           "auth-token",
           JSON.stringify(response.data.result)
         );
+        tokenDetail = response.data.result;
       } else {
         localStorage.clear();
         window.location.href = "/login";
