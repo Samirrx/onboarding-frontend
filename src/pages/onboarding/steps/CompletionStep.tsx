@@ -137,8 +137,8 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
               {data.modules
                 .sort((a: string, b: string) => a.localeCompare(b))
                 .map(
-                  (module: string) =>
-                    module.charAt(0).toUpperCase() + module.slice(1)
+                  (module: string)=> 
+                   module.charAt(0).toUpperCase() + module.slice(1)
                 )
                 .join(", ")}
             </dd>
