@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 
 interface WorkspaceSetupStepProps {
   formData: any;
@@ -15,93 +15,106 @@ export function WorkspaceSetupStep({
   formData,
   updateFormData,
   onNext,
-  onBack
+  onBack,
 }: WorkspaceSetupStepProps) {
   const [preferences, setPreferences] = useState({
-    modules: formData.modules || formData.workspacePreferences?.modules || []
+    modules: formData.modules || formData.workspacePreferences?.modules || [],
   });
 
-  // This effect keeps the local state in sync with formData if it changes
-  useEffect(() => { 
-    const modulesData = formData.modules || formData.workspacePreferences?.modules || [];
-    setPreferences(prev => ({
+  useEffect(() => {
+    const modulesData =
+      formData.modules || formData.workspacePreferences?.modules || [];
+    setPreferences((prev) => ({
       ...prev,
-      modules: modulesData
+      modules: modulesData,
     }));
   }, [formData]);
 
   const modules = [
     {
-      id: 'CRM',
-      name: 'CRM',
+      id: "CRM",
+      name: "CRM",
       description:
-        'A centralized platform for managing customer relationships, and activities.'
+        "A centralized platform for managing customer relationships, and activities.",
+    },
+    // {
+    //   id: 'FSM',
+    //   name: 'FSM',
+    //   description: 'Efficiently manage field teams, job assignments, and on-site service tasks.'
+    // },
+    {
+      id: "ITSM",
+      name: "ITSM",
+      description:
+        "Track incidents, and automate IT workflows to enhance service delivery.",
     },
     {
-      id: 'FSM',
-      name: 'FSM',
+      id: "Helpdesk",
+      name: "Helpdesk",
       description:
-        'Efficiently manage field teams, job assignments, and on-site service tasks.'
+        "Manage support requests, assign tickets, and ensure timely resolution.",
     },
     {
-      id: 'ITSM',
-      name: 'ITSM',
+      id: "assetManagement",
+      name: "Asset Management",
       description:
-        'Track incidents, and automate IT workflows to enhance service delivery.'
+        "Track, manage, and maintain physical and digital assets across their lifecycle.",
     },
+    // {
+    //   id: 'HRMS',
+    //   name: 'HRMS',
+    //   description: 'Managing employee data, tracking performance, and automating.'
+    // },
     {
-      id: 'Helpdesk',
-      name: 'Helpdesk ',
+      id: "attendanceManagement",
+      name: "Attendance Management",
       description:
-        'Manage support requests, assign tickets, and ensure timely resolution.'
+        "Track employee check-ins, working hours, leaves, and absences in real time.",
     },
-    {
-      id: 'assetManagement',
-      name: 'Asset Management',
-      description:
-        'Track, manage, and maintain physical and digital assets across their lifecycle.'
-    },
-    {
-      id: 'HRMS',
-      name: 'HRMS',
-      description:
-        'Managing employee data, tracking performance, and automating.'
-    },
-    {
-      id: 'attendanceManagement',
-      name: 'Attendance Management',
-      description:
-        'Track employee check-ins, working hours, leaves, and absences in real time.'
-    },
-    {
-      id: 'debtManagement',
-      name: 'Debt Management',
-      description:
-        'Keep records of debts, automate repayment schedules, reduce financial risk.'
-    }
+    // {
+    //   id: 'debtManagement',
+    //   name: 'Debt Management',
+    //   description: 'Keep records of debts, automate repayment schedules, reduce financial risk.'
+    // }
   ];
 
-  const handleModuleToggle = (name: string) => {
+  const handleModuleToggle = (moduleId: string) => {
     setPreferences((prev) => {
-      const isSelected = prev.modules.includes(name);
-      const updatedModules = isSelected
-        ? prev.modules.filter((n: string) => n !== name)
-        : [...prev.modules, name];
+      let updatedModules = [...prev.modules];
+      const isSelected = updatedModules.includes(moduleId);
+
+      if (isSelected) {
+        updatedModules = updatedModules.filter((id) => id !== moduleId);
+        if (moduleId === "CRM") {
+          updatedModules = updatedModules.filter(
+            (id) => id !== "assetManagement"
+          );
+        }
+
+        if (moduleId === "assetManagement") {
+          updatedModules = updatedModules.filter((id) => id !== "CRM");
+        }
+      } else {
+        updatedModules.push(moduleId);
+        if (moduleId === "CRM" && !updatedModules.includes("assetManagement")) {
+          updatedModules.push("assetManagement");
+        }
+      }
 
       return {
         ...prev,
-        modules: updatedModules
+        modules: updatedModules,
       };
     });
   };
 
   const handleSubmit = () => {
     updateFormData({
-      modules: preferences.modules
+      modules: preferences.modules,
     });
     onNext();
   };
-  console.log(handleSubmit);
+
   return (
     <div className="space-y-6 py-6">
       <div className="space-y-2">
@@ -121,34 +134,36 @@ export function WorkspaceSetupStep({
           </p>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            {modules.map((module) => (
-              <div key={module.id} className="space-y-2">
-                <div
-                  className={`flex items-start space-x-3 rounded-md border p-4 cursor-pointer transition-colors ${
-                    preferences.modules.includes(module.name)
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:bg-accent'
-                  }`}
-                  onClick={() => handleModuleToggle(module.name)}
-                >
+            {[...modules]
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((module) => (
+                <div key={module.id} className="space-y-2">
                   <div
-                    className={`mt-0.5 rounded-full p-1 ${
-                      preferences.modules.includes(module.name)
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted text-muted-foreground'
+                    className={`flex items-start space-x-3 rounded-md border p-4 cursor-pointer transition-colors ${
+                      preferences.modules.includes(module.id)
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:bg-accent"
                     }`}
+                    onClick={() => handleModuleToggle(module.id)}
                   >
-                    <Check className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium">{module.name}</h4>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {module.description}
-                    </p>
+                    <div
+                      className={`mt-0.5 rounded-full p-1 ${
+                        preferences.modules.includes(module.id)
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      <Check className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium">{module.name}</h4>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {module.description}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
       </div>

@@ -17,27 +17,27 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
   const [loading, setLoading] = useState(false);
 
   const { companyLogo, ...rest } = formData;
-  
+
   const data = {
     ...rest,
-    modules: formData.modules.map((module: string) => module),
+    modules: formData.modules.map((module: string) => module.toLowerCase()),
     teamMembers: formData.teamMembers[0]?.email || "",
   };
-  
+
   const submitTenant = async () => {
     setLoading(true);
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("tenantDtl", JSON.stringify(data));
-  
+
       if (formData.companyLogo) {
         formDataToSend.append("companyLogo", formData.companyLogo);
       }
       console.log("Form data to send:", formDataToSend);
-  
+
       //Make API call using axios
       const response = await addTenant(formDataToSend);
-  
+
       if (response?.status) {
         navigate("/", {
           state: {
@@ -48,7 +48,7 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
           autoClose: 5000,
         });
       }
-  
+
       console.log("Tenant added successfully:", response);
     } catch (error) {
       console.error("Error adding tenant:", error);
@@ -56,7 +56,6 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
       setLoading(false);
     }
   };
-  
 
   return (
     <div className="space-y-6 py-6">
@@ -79,13 +78,17 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
             </dd>
           </div>
           <div className="grid grid-cols-3 gap-1">
-            <dt className="text-muted-foreground text-justify">Instance Type</dt>
+            <dt className="text-muted-foreground text-justify">
+              Instance Type
+            </dt>
             <dd className="col-span-2 font-medium text-justify">
               {data.instanceType}
             </dd>
           </div>
           <div className="grid grid-cols-3 gap-1">
-            <dt className="text-muted-foreground text-justify">Company Name:</dt>
+            <dt className="text-muted-foreground text-justify">
+              Company Name:
+            </dt>
             <dd className="col-span-2 font-medium text-justify">
               {data.companyName}
             </dd>
@@ -97,7 +100,9 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
             </dd>
           </div>
           <div className="grid grid-cols-3 gap-1">
-            <dt className="text-muted-foreground text-justify">Phone Number:</dt>
+            <dt className="text-muted-foreground text-justify">
+              Phone Number:
+            </dt>
             <dd className="col-span-2 font-medium text-justify">
               {data.phoneNumber}
             </dd>
@@ -109,25 +114,31 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
             </dd>
           </div>
           <div className="grid grid-cols-3 gap-1">
-            <dt className="text-muted-foreground text-justify">Company Size:</dt>
+            <dt className="text-muted-foreground text-justify">
+              Company Size:
+            </dt>
             <dd className="col-span-2 font-medium text-justify">
               {data.companySize}
             </dd>
           </div>
           <div className="grid grid-cols-3 gap-1">
-            <dt className="text-muted-foreground text-justify">Team Members:</dt>
+            <dt className="text-muted-foreground text-justify">
+              Team Members:
+            </dt>
             <dd className="col-span-2 font-medium text-justify">
               {data.teamMembers}
             </dd>
           </div>
           <div className="grid grid-cols-3 gap-1">
-            <dt className="text-muted-foreground text-justify">Modules Enabled:</dt>
+            <dt className="text-muted-foreground text-justify">
+              Modules Enabled:
+            </dt>
             <dd className="col-span-2 font-medium text-justify">
               {data.modules
+                .sort((a: string, b: string) => a.localeCompare(b))
                 .map(
-                  (module: string)=> {
-                 return   module
-                  }
+                  (module: string)=> 
+                   module.charAt(0).toUpperCase() + module.slice(1)
                 )
                 .join(", ")}
             </dd>
