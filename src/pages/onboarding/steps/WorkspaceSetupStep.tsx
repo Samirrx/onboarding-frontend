@@ -55,7 +55,7 @@ export function WorkspaceSetupStep({
         "Manage support requests, assign tickets, and ensure timely resolution.",
     },
     {
-      id: "assetManagement",
+      id: "Asset Management",
       name: "Asset Management",
       description:
         "Track, manage, and maintain physical and digital assets across their lifecycle.",
@@ -66,7 +66,7 @@ export function WorkspaceSetupStep({
     //   description: 'Managing employee data, tracking performance, and automating.'
     // },
     {
-      id: "attendanceManagement",
+      id: "Attendance Management",
       name: "Attendance Management",
       description:
         "Track employee check-ins, working hours, leaves, and absences in real time.",
@@ -87,17 +87,17 @@ export function WorkspaceSetupStep({
         updatedModules = updatedModules.filter((id) => id !== moduleId);
         if (moduleId === "CRM") {
           updatedModules = updatedModules.filter(
-            (id) => id !== "assetManagement"
+            (id) => id !== "Asset Management"
           );
         }
 
-        if (moduleId === "assetManagement") {
+        if (moduleId === "Asset Management") {
           updatedModules = updatedModules.filter((id) => id !== "CRM");
         }
       } else {
         updatedModules.push(moduleId);
-        if (moduleId === "CRM" && !updatedModules.includes("assetManagement")) {
-          updatedModules.push("assetManagement");
+        if (moduleId === "CRM" && !updatedModules.includes("Asset Management")) {
+          updatedModules.push("Asset Management");
         }
       }
 
