@@ -5,6 +5,7 @@ import {
   Calendar,
   Database,
   ExternalLink,
+  Loader2,
   Server,
   Shield,
   User
@@ -24,6 +25,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { fetchTenantList } from '@/services/controllers/onboarding';
 import { updateTenant } from '@/services/controllers/onboarding';
+import { fetchModuleNames } from '@/services/controllers/onboarding';
 import {
   Select,
   SelectTrigger,
@@ -35,6 +37,7 @@ import { Switch } from '@/components/ui/switch';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
+import Module from 'module';
 
 interface Tenant {
   id: number;
@@ -60,6 +63,8 @@ export default function TenantDashboard() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [modules, setModules] = useState<any[]>([]);
+  const [isLoadingModules, setIsLoadingModules] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { state } = location;
@@ -81,10 +86,33 @@ export default function TenantDashboard() {
     }
   }, [env]);
 
-  const handleShowMore = (tenant: Tenant) => {
+  const fetchModulesForTenant = async (tenantId: string, environment: string) => {
+    setIsLoadingModules(true);
+    try {
+      const response = await fetchModuleNames(environment, tenantId);
+      console.log('Modules response:', response);
+      const moduleData = response?.result || response?.data || response || [];
+      const modulesArray = Array.isArray(moduleData) ? moduleData : [];
+      const sortedModules = modulesArray.sort((a, b) => {
+        const nameA = (a?.displayName || a?.name || a || '').toString().toLowerCase();
+        const nameB = (b?.displayName || b?.name || b || '').toString().toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+      
+      setModules(sortedModules);
+    } catch (error) {
+      console.error('Failed to fetch modules for tenant:', error);
+      setModules([]);
+    } finally {
+      setIsLoadingModules(false);
+    }
+  };
+
+  const handleShowMore = async (tenant: Tenant) => {
     setSelectedTenant(tenant);
     setIsActive(tenant.active);
     setIsDialogOpen(true);
+    await fetchModulesForTenant(tenant.tenantId, env);
   };
 
   const formatDate = (dateString: string) => {
@@ -417,6 +445,42 @@ export default function TenantDashboard() {
                       </dd>
                     </div>
                   </dl>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h3 className="text-sm font-medium flex items-center gap-2 mb-3">
+                    <Server className="h-4 w-4 text-slate-500" />
+                    Module Configuration
+                    {isLoadingModules && (
+                      <Loader2 className="h-4 w-4 animate-spin text-slate-500" />
+                    )}
+                  </h3>
+                  
+                  {isLoadingModules ? (
+                    <div className="text-sm text-muted-foreground">Loading modules...</div>
+                  ) : modules && modules.length > 0 ? (
+                    <div className="grid md:grid-cols-2 gap-x-12 gap-y-2 text-sm">
+                      <div className="col-span-full">
+                        <dt className="text-muted-foreground mb-2">Modules Name:</dt>
+                        <div className="space-y-1">
+                          {modules.map((module, index) => (
+                            <dd key={module?.id || `module-${index}`} className="font-mono text-xs bg-slate-100 dark:bg-slate-800 p-1.5 rounded">
+                              {module?.displayName || 'Unknown Module'}
+                            </dd>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-sm text-muted-foreground">
+                      No modules configured for this tenant.
+                      <div className="text-xs mt-1">
+                        Environment: {env} | Tenant ID: {selectedTenant.tenantId}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <Separator />
