@@ -26,3 +26,11 @@ export const updateTenant = async (tenantId, isActive) => {
   })
   return response;
 }
+
+export const fetchModuleNames = async (environment, tenantId) => {
+  const response = await makeHttpCall({
+    method: 'GET',
+    url: `/${environment}/module/${tenantId}`,
+  });
+  return response;
+}
