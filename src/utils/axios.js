@@ -43,8 +43,7 @@ const isTokenExpired = (tokenDetail) => {
   const expirationTime = typeof tokenDetail.expirationTime === 'string' 
     ? new Date(tokenDetail.expirationTime).getTime() 
     : tokenDetail.expirationTime;
-    
-  // Add 30 second buffer
+
   return expirationTime < (now + 30000);
 };
 
