@@ -20,7 +20,7 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
 
   const data = {
     ...rest,
-    modules: formData.modules.map((module: string) => module.toLowerCase()),
+    modules: formData.modules.map((module: string) => module),
     teamMembers: formData.teamMembers[0]?.email || "",
   };
 

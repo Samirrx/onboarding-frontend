@@ -37,6 +37,7 @@ import { Switch } from '@/components/ui/switch';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
+import Module from 'module';
 
 interface Tenant {
   id: number;
