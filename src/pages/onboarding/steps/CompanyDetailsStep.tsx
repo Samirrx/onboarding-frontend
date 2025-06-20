@@ -121,6 +121,17 @@ export function CompanyDetailsStep({
     phoneNumber,
   ]);
 
+  useEffect(() => {
+    if (formData.companyLogo && !logoPreview) {
+      const file = formData.companyLogo;
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  }, [formData.companyLogo, logoPreview]);
+
   const handleSubmit = () => {
     if (validateForm()) {
       updateFormData({

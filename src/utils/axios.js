@@ -1,4 +1,5 @@
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 import { getTimezone, getTimezoneOffset } from "../utils/helpers";
 import { notify } from "../hooks/toastUtils";
 
@@ -19,7 +20,7 @@ const processQueue = (error, token = null) => {
       resolve(token);
     }
   });
-  
+
   failedQueue = [];
 };
 
@@ -38,10 +39,10 @@ const isTokenExpired = (tokenDetail) => {
   if (!tokenDetail || !tokenDetail.expirationTime) {
     return true;
   }
-  
+
   const now = Date.now();
-  const expirationTime = typeof tokenDetail.expirationTime === 'string' 
-    ? new Date(tokenDetail.expirationTime).getTime() 
+  const expirationTime = typeof tokenDetail.expirationTime === 'string'
+    ? new Date(tokenDetail.expirationTime).getTime()
     : tokenDetail.expirationTime;
 
   return expirationTime < (now + 30000);
@@ -54,6 +55,25 @@ const refreshAuthToken = async () => {
   if (!tokenDetail?.refreshToken) {
     console.error("No refresh token available");
     throw new Error("No refresh token available");
+  }
+
+  //Decode refreshToken and check if it's expired before making API call
+  try {
+    const decoded = jwtDecode(tokenDetail.refreshToken);
+    const refreshTokenExpiry = decoded?.exp * 1000;
+    const now = Date.now();
+
+    if (refreshTokenExpiry < now) {
+      console.warn("Refresh token has expired");
+      localStorage.removeItem("auth-token");
+      window.location.href = "/login";
+      throw new Error("Refresh token expired");
+    }
+  } catch (e) {
+    console.error("Invalid refresh token:", e);
+    localStorage.removeItem("auth-token");
+    window.location.href = "/login";
+    throw new Error("Invalid refresh token");
   }
 
   try {
@@ -69,57 +89,40 @@ const refreshAuthToken = async () => {
       },
     });
 
-    console.log("Refresh response status:", refreshResponse.status);
-
     if (refreshResponse.status === 200 && refreshResponse.data?.result?.tokenDetail) {
       const newTokenDetail = refreshResponse.data.result.tokenDetail;
-      
       // Ensure we have a valid token
       if (!newTokenDetail.token) {
         throw new Error("No token received in refresh response");
       }
-      
       // Preserve the refresh token if it's not provided in the response
       if (!newTokenDetail.refreshToken && tokenDetail.refreshToken) {
         console.log("Preserving existing refresh token");
         newTokenDetail.refreshToken = tokenDetail.refreshToken;
       }
-      
       // Ensure expiration time is properly set
-      if (newTokenDetail.expirationTime) {
-        // Convert to timestamp if it's a string
-        if (typeof newTokenDetail.expirationTime === 'string') {
-          newTokenDetail.expirationTime = new Date(newTokenDetail.expirationTime).getTime();
-        }
+      if (newTokenDetail.expirationTime && typeof newTokenDetail.expirationTime === 'string') {
+        newTokenDetail.expirationTime = new Date(newTokenDetail.expirationTime).getTime();
       }
-      
-      console.log("Saving new token details:", {
-        hasToken: !!newTokenDetail.token,
-        hasRefreshToken: !!newTokenDetail.refreshToken,
-        expirationTime: newTokenDetail.expirationTime ? new Date(newTokenDetail.expirationTime) : 'N/A'
-      });
-      
+
       localStorage.setItem("auth-token", JSON.stringify(newTokenDetail));
       console.log("Token refreshed successfully");
-      
       return newTokenDetail;
     } else {
       console.error("Invalid refresh response:", refreshResponse.data);
       throw new Error("Invalid refresh response");
     }
   } catch (error) {
-    console.error("Token refresh failed:", error);
+     console.error("Token refresh failed:", error);
     
     // Clear tokens on auth failure
     if (error.response?.status === 401 || error.response?.status === 403) {
       console.log("Clearing tokens due to auth failure");
       localStorage.removeItem("auth-token");
     }
-    
     throw error;
   }
 };
-
 // Create a function to add auth header
 const addAuthHeader = (config, token) => {
   if (token) {
@@ -127,90 +130,55 @@ const addAuthHeader = (config, token) => {
   }
   return config;
 };
-
 // Add request interceptor
 axios.interceptors.request.use(
   async (config) => {
     // Add timezone headers
     config.headers["timezone"] = getTimezone();
     config.headers["timezone-offset"] = getTimezoneOffset();
-
     // Skip token handling for refresh token requests
     if (config.url?.includes('/user/refresh-token')) {
       return config;
     }
 
-    let tokenDetail = getStoredToken();
-    
-    // Log current token state
-    console.log("Token check:", {
-      hasToken: !!tokenDetail?.token,
-      hasRefreshToken: !!tokenDetail?.refreshToken,
-      expirationTime: tokenDetail?.expirationTime ? new Date(tokenDetail.expirationTime) : 'N/A',
-      currentTime: new Date(),
-      isExpired: tokenDetail ? isTokenExpired(tokenDetail) : true
-    });
+    const tokenDetail = getStoredToken();
+    if (!tokenDetail) return config;
 
-    // If no token at all, let the request proceed (might be a public endpoint)
-    if (!tokenDetail) {
-      return config;
-    }
-
-    // Check if token needs refreshing
     if (isTokenExpired(tokenDetail)) {
       if (isRefreshing) {
-        // If refresh is in progress, queue this request
-        // console.log("Queueing request while refresh in progress");
         return new Promise((resolve, reject) => {
-          failedQueue.push({ 
-            resolve: (token) => {
-              // console.log("Processing queued request with new token");
-              resolve(addAuthHeader(config, token));
-            }, 
-            reject 
+          failedQueue.push({
+            resolve: (token) => resolve(addAuthHeader(config, token)),
+            reject
           });
         });
       }
 
-      // Start refresh process
-      // console.log("Starting token refresh process");
       isRefreshing = true;
       refreshPromise = refreshAuthToken();
 
       try {
         const newTokenDetail = await refreshPromise;
-        // console.log("Token refresh completed, processing queue");
         processQueue(null, newTokenDetail.token);
         return addAuthHeader(config, newTokenDetail.token);
       } catch (error) {
-        console.error("Token refresh failed, processing queue with error");
         processQueue(error, null);
-        
-        // Redirect to login on auth failure
         if (error.response?.status === 401 || error.response?.status === 403) {
           localStorage.clear();
           window.location.href = "/login";
         }
-        
         return Promise.reject(error);
       } finally {
         isRefreshing = false;
         refreshPromise = null;
       }
-    } else if (tokenDetail?.token) {
-      // Token is valid, use it
-      return addAuthHeader(config, tokenDetail.token);
     }
 
-    return config;
+    return addAuthHeader(config, tokenDetail.token);
   },
-  (error) => {
-    console.error("Request interceptor error:", error);
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Add response interceptor
 axios.interceptors.response.use(
   (res) => {
     if (res) {
@@ -231,12 +199,10 @@ axios.interceptors.response.use(
         status: false,
       });
     }
-
     // Handle 401/403 errors - token might be invalid
-    if ((error.response.status === 401 || error.response.status === 403) && 
-        !originalRequest._retry && 
+    if ((error.response.status === 401 || error.response.status === 403) &&
+        !originalRequest._retry &&
         !originalRequest.url?.includes('/user/refresh-token')) {
-      
       console.log("Received 401/403, attempting token refresh");
       originalRequest._retry = true;
 
@@ -248,34 +214,24 @@ axios.interceptors.response.use(
               originalRequest.headers["Authorization"] = `Bearer ${token}`;
               resolve(axios(originalRequest));
             },
-            reject: (err) => {
-              reject(err);
-            }
+            reject
           });
         });
       } else {
-        // Start new refresh
         isRefreshing = true;
         refreshPromise = refreshAuthToken();
 
         try {
           const newTokenDetail = await refreshPromise;
-          console.log("Token refreshed in response interceptor");
           processQueue(null, newTokenDetail.token);
-          
-          // Retry the original request with new token
           originalRequest.headers["Authorization"] = `Bearer ${newTokenDetail.token}`;
           return axios(originalRequest);
         } catch (refreshError) {
-          console.error("Token refresh failed in response interceptor:", refreshError);
           processQueue(refreshError, null);
-          
-          // Only redirect on auth errors
           if (refreshError.response?.status === 401 || refreshError.response?.status === 403) {
             localStorage.clear();
             window.location.href = "/login";
           }
-          
           return Promise.reject(refreshError);
         } finally {
           isRefreshing = false;
@@ -321,13 +277,8 @@ const makeHttpCall = async ({ headers = {}, ...options }) => {
   try {
     // Set full URL
     if (!options.url.startsWith("http")) {
-      options.url = `${API_ENDPOINT.replace(/\/$/, "")}/${options.url.replace(
-        /^\//,
-        ""
-      )}`;
+      options.url = `${API_ENDPOINT.replace(/\/$/, "")}/${options.url.replace(/^\//, "")}`;
     }
-
-    console.log("Final Request URL:", options.url);
 
     const isFormData = options.data instanceof FormData;
     const result = await axios({
@@ -340,12 +291,10 @@ const makeHttpCall = async ({ headers = {}, ...options }) => {
 
     return result.data || null;
   } catch (err) {
-    console.error("Axios call failed:", err);
     return errorHandler(err);
   }
 };
 
-// ✅ Named export for specific API usage
 export const userLogin = async (credentials) => {
   try {
     const response = await makeHttpCall({
@@ -356,14 +305,11 @@ export const userLogin = async (credentials) => {
     });
 
     if (response.status) {
-      // Ensure expiration time is properly stored
       const tokenDetail = response.result.tokenDetail;
       if (tokenDetail.expirationTime && typeof tokenDetail.expirationTime === 'string') {
         tokenDetail.expirationTime = new Date(tokenDetail.expirationTime).getTime();
       }
-      
       localStorage.setItem("auth-token", JSON.stringify(tokenDetail));
-      console.log("Login successful, token stored");
     } else {
       notify.error(response?.message || "Oops! Something went wrong");
     }
@@ -371,11 +317,9 @@ export const userLogin = async (credentials) => {
     return response;
   } catch (error) {
     notify.error("Login failed. Please try again.");
-    console.error("Login error:", error);
     return null;
   }
 };
-
 // export const userLogin = async (data) => {
 
 //   if (data.status) {
@@ -396,6 +340,4 @@ export const userLogin = async (credentials) => {
 //     headers: { username: data?.username }
 //   });
 // };
-
-
 export default makeHttpCall;
