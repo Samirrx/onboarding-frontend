@@ -24,8 +24,42 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
     teamMembers: formData.teamMembers[0]?.email || "",
   };
 
+  // const submitTenant = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const formDataToSend = new FormData();
+  //     formDataToSend.append("tenantDtl", JSON.stringify(data));
+
+  //     if (formData.companyLogo) {
+  //       formDataToSend.append("companyLogo", formData.companyLogo);
+  //     }
+  //     console.log("Form data to send:", formDataToSend);
+
+  //     //Make API call using axios
+  //     const response = await addTenant(formDataToSend);
+
+  //     if (response?.status) {
+  //       navigate("/", {
+  //         state: {
+  //           environment: data.environment,
+  //         },
+  //       });
+  //       notify.success("Tenant creation has started. A confirmation email will be sent shortly. This may take a few minutes.", {
+  //         autoClose: 5000,
+  //       });
+  //     }
+
+  //     console.log("Tenant added successfully:", response);
+  //   } catch (error) {
+  //     console.error("Error adding tenant:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const submitTenant = async () => {
     setLoading(true);
+    
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("tenantDtl", JSON.stringify(data));
@@ -34,24 +68,22 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
         formDataToSend.append("companyLogo", formData.companyLogo);
       }
       console.log("Form data to send:", formDataToSend);
+      notify.success("Tenant creation has started. A confirmation email will be sent shortly. This may take a few minutes.", {
+        autoClose: 5000,
+      });
 
-      //Make API call using axios
-      const response = await addTenant(formDataToSend);
+      navigate("/", {
+        state: {
+          environment: data.environment,
+        },
+      });
 
-      if (response?.status) {
-        navigate("/", {
-          state: {
-            environment: data.environment,
-          },
-        });
-        notify.success("Please wait... Creating new tenant", {
-          autoClose: 5000,
-        });
-      }
+      addTenant(formDataToSend).then((response) => {
+        console.log("Tenant added successfully:", response);
+      }).catch((error) => {
+        console.error("Error adding tenant:", error);
+      });
 
-      console.log("Tenant added successfully:", response);
-    } catch (error) {
-      console.error("Error adding tenant:", error);
     } finally {
       setLoading(false);
     }
