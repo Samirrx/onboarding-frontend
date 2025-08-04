@@ -24,42 +24,8 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
     teamMembers: formData.teamMembers[0]?.email || "",
   };
 
-  // const submitTenant = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const formDataToSend = new FormData();
-  //     formDataToSend.append("tenantDtl", JSON.stringify(data));
-
-  //     if (formData.companyLogo) {
-  //       formDataToSend.append("companyLogo", formData.companyLogo);
-  //     }
-  //     console.log("Form data to send:", formDataToSend);
-
-  //     //Make API call using axios
-  //     const response = await addTenant(formDataToSend);
-
-  //     if (response?.status) {
-  //       navigate("/", {
-  //         state: {
-  //           environment: data.environment,
-  //         },
-  //       });
-  //       notify.success("Tenant creation has started. A confirmation email will be sent shortly. This may take a few minutes.", {
-  //         autoClose: 5000,
-  //       });
-  //     }
-
-  //     console.log("Tenant added successfully:", response);
-  //   } catch (error) {
-  //     console.error("Error adding tenant:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   const submitTenant = async () => {
     setLoading(true);
-    
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("tenantDtl", JSON.stringify(data));
@@ -68,26 +34,89 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
         formDataToSend.append("companyLogo", formData.companyLogo);
       }
       console.log("Form data to send:", formDataToSend);
-      notify.success("Tenant creation has started. A confirmation email will be sent shortly. This may take a few minutes.", {
+
+      // Make API call using axios
+      const response = await addTenant(formDataToSend);
+      if (response?.status) {
+        navigate("/", {
+          state: {
+            environment: data.environment,
+          },
+        });
+        notify.success(
+          "Tenant creation has started. A confirmation email will be sent shortly.",
+          {
+            autoClose: 5000,
+          }
+        );
+        console.log("Tenant added successfully:", response);
+      } else {
+        const errorMessage =
+          response?.message ||
+          response?.error ||
+          "Failed to create tenant. Please try again.";
+        notify.error(errorMessage, {
+          autoClose: 5000,
+        });
+        console.error("Tenant creation failed:", response);
+      }
+    } catch (error) {
+      console.error("Error adding tenant:", error);
+
+      let errorMessage =
+        "An error occurred while creating the tenant. Please try again.";
+
+      if (error.response) {
+        errorMessage =
+          error.response.data?.message ||
+          error.response.data?.error ||
+          `Server error: ${error.response.status}`;
+      } else if (error.request) {
+        errorMessage =
+          "Network error. Please check your connection and try again.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      notify.error(errorMessage, {
         autoClose: 5000,
       });
-
-      navigate("/", {
-        state: {
-          environment: data.environment,
-        },
-      });
-
-      addTenant(formDataToSend).then((response) => {
-        console.log("Tenant added successfully:", response);
-      }).catch((error) => {
-        console.error("Error adding tenant:", error);
-      });
-
     } finally {
       setLoading(false);
     }
   };
+
+  // const submitTenant = async () => {
+  //   setLoading(true);
+
+  //   try {
+  //     const formDataToSend = new FormData();
+  //     formDataToSend.append("tenantDtl", JSON.stringify(data));
+
+  //     if (formData.companyLogo) {
+  //       formDataToSend.append("companyLogo", formData.companyLogo);
+  //     }
+  //     console.log("Form data to send:", formDataToSend);
+  //     notify.success("Tenant creation has started. A confirmation email will be sent shortly. This may take a few minutes.", {
+  //       autoClose: 5000,
+  //     });
+
+  //     navigate("/", {
+  //       state: {
+  //         environment: data.environment,
+  //       },
+  //     });
+
+  //     addTenant(formDataToSend).then((response) => {
+  //       console.log("Tenant added successfully:", response);
+  //     }).catch((error) => {
+  //       console.error("Error adding tenant:", error);
+  //     });
+
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   return (
     <div className="space-y-6 py-6">
@@ -169,8 +198,8 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
               {data.modules
                 .sort((a: string, b: string) => a.localeCompare(b))
                 .map(
-                  (module: string)=> 
-                   module.charAt(0).toUpperCase() + module.slice(1)
+                  (module: string) =>
+                    module.charAt(0).toUpperCase() + module.slice(1)
                 )
                 .join(", ")}
             </dd>
