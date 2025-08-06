@@ -8,7 +8,8 @@ import {
   Loader2,
   Server,
   Shield,
-  User
+  User,
+  Trash2
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -26,6 +27,7 @@ import { Separator } from '@/components/ui/separator';
 import { fetchTenantList } from '@/services/controllers/onboarding';
 import { updateTenant } from '@/services/controllers/onboarding';
 import { fetchModuleNames } from '@/services/controllers/onboarding';
+import { deleteTenant } from '@/services/controllers/onboarding';
 import {
   Select,
   SelectTrigger,
@@ -60,6 +62,9 @@ interface Tenant {
 export default function TenantDashboard() {
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [modules, setModules] = useState<any[]>([]);
@@ -112,6 +117,43 @@ export default function TenantDashboard() {
     setIsActive(tenant.active);
     setIsDialogOpen(true);
     await fetchModulesForTenant(tenant.tenantId, env);
+  };
+
+  const handleDeleteClick = () => {
+    setDeleteConfirmText('');
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (deleteConfirmText !== 'DELETE' || !selectedTenant) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const response = await deleteTenant(selectedTenant.tenantId);
+      
+      // Check if the API call was successful
+      if (response?.status || response?.message === 'Tenant deleted successfully') {
+        // Remove from local state after successful deletion
+        setTenants((prevTenants) =>
+          prevTenants.filter((tenant) => tenant.id !== selectedTenant.id)
+        );
+        
+        // Close dialogs
+        setIsDeleteDialogOpen(false);
+        setIsDialogOpen(false);
+        setSelectedTenant(null);
+        
+        console.log('Tenant deleted successfully');
+      } else {
+        console.error('Delete failed:', response?.message || 'Unknown error');
+      }
+    } catch (error) {
+      console.error('Failed to delete tenant:', error);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -295,13 +337,14 @@ export default function TenantDashboard() {
         </div>
       </div>
 
+      {/* Main Details Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         {selectedTenant && (
           <DialogContent className="max-w-5xl sm:max-w-5xl w-5xl">
             <DialogHeader>
-              <DialogTitle className="text-2xl flex items-center gap-2">
-                {selectedTenant.name}
+              <DialogTitle className="text-2xl flex items-center justify-between">
                 <div className="flex items-center gap-2">
+                  {selectedTenant.name}
                   <Badge
                     className={
                       isActive
@@ -340,6 +383,16 @@ export default function TenantDashboard() {
                     }}
                   />
                 </div>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleDeleteClick}
+                  className="gap-1 mr-1"
+                  style={{ marginRight: '15px' }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete
+                </Button>
               </DialogTitle>
               <DialogDescription>
                 Complete configuration details for tenant ID:{' '}
@@ -494,6 +547,58 @@ export default function TenantDashboard() {
             </div>
           </DialogContent>
         )}
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl text-red-600 flex items-center gap-2">
+              <Trash2 className="h-5 w-5" />
+              Delete Tenant
+            </DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete the tenant{' '}
+              <span className="font-medium">{selectedTenant?.name}</span> and all associated data.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <p className="text-sm text-muted-foreground mb-3">
+              Type <span className="font-bold">DELETE</span> to confirm:
+            </p>
+            <Input
+              type="text"
+              placeholder="Type 'DELETE' to confirm"
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+              className="mb-4"
+            />
+          </div>
+          
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              disabled={deleteConfirmText !== 'DELETE' || isDeleting}
+              className="gap-2"
+            >
+              {isDeleting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
+              {isDeleting ? 'Deleting...' : 'Delete Tenant'}
+            </Button>
+          </div>
+        </DialogContent>
       </Dialog>
     </div>
   );
