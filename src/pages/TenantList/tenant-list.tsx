@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import {
   Calendar,
   Database,
@@ -9,36 +9,36 @@ import {
   Server,
   Shield,
   User,
-  Trash2
-} from 'lucide-react';
-import { format } from 'date-fns';
+  Trash2,
+} from "lucide-react";
+import { format } from "date-fns";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { fetchTenantList } from '@/services/controllers/onboarding';
-import { updateTenant } from '@/services/controllers/onboarding';
-import { fetchModuleNames } from '@/services/controllers/onboarding';
-import { deleteTenant } from '@/services/controllers/onboarding';
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { fetchTenantList } from "@/services/controllers/onboarding";
+import { updateTenant } from "@/services/controllers/onboarding";
+import { fetchModuleNames } from "@/services/controllers/onboarding";
+import { deleteTenant } from "@/services/controllers/onboarding";
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
-  SelectItem
-} from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { useNavigate } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
-import { Input } from '@/components/ui/input';
+  SelectItem,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { Input } from "@/components/ui/input";
 
 interface Tenant {
   id: number;
@@ -63,16 +63,16 @@ export default function TenantDashboard() {
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [modules, setModules] = useState<any[]>([]);
   const [isLoadingModules, setIsLoadingModules] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { state } = location;
-  const [env, setEnv] = useState(state?.environment.toLowerCase() || 'dev');
+  const [env, setEnv] = useState(state?.environment.toLowerCase() || "dev");
   const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
@@ -81,7 +81,7 @@ export default function TenantDashboard() {
         const response = await fetchTenantList(env);
         setTenants(response?.result || []);
       } catch (error) {
-        console.error('Failed to fetch tenants', error);
+        console.error("Failed to fetch tenants", error);
       }
     };
 
@@ -90,22 +90,29 @@ export default function TenantDashboard() {
     }
   }, [env]);
 
-  const fetchModulesForTenant = async (tenantId: string, environment: string) => {
+  const fetchModulesForTenant = async (
+    tenantId: string,
+    environment: string
+  ) => {
     setIsLoadingModules(true);
     try {
       const response = await fetchModuleNames(environment, tenantId);
-      console.log('Modules response:', response);
+      console.log("Modules response:", response);
       const moduleData = response?.result || response?.data || response || [];
       const modulesArray = Array.isArray(moduleData) ? moduleData : [];
       const sortedModules = modulesArray.sort((a, b) => {
-        const nameA = (a?.displayName || a?.name || a || '').toString().toLowerCase();
-        const nameB = (b?.displayName || b?.name || b || '').toString().toLowerCase();
+        const nameA = (a?.displayName || a?.name || a || "")
+          .toString()
+          .toLowerCase();
+        const nameB = (b?.displayName || b?.name || b || "")
+          .toString()
+          .toLowerCase();
         return nameA.localeCompare(nameB);
       });
-      
+
       setModules(sortedModules);
     } catch (error) {
-      console.error('Failed to fetch modules for tenant:', error);
+      console.error("Failed to fetch modules for tenant:", error);
       setModules([]);
     } finally {
       setIsLoadingModules(false);
@@ -120,45 +127,48 @@ export default function TenantDashboard() {
   };
 
   const handleDeleteClick = () => {
-    setDeleteConfirmText('');
+    setDeleteConfirmText("");
     setIsDeleteDialogOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
-    if (deleteConfirmText !== 'DELETE' || !selectedTenant) {
+    if (deleteConfirmText !== "DELETE" || !selectedTenant) {
       return;
     }
 
     setIsDeleting(true);
     try {
       const response = await deleteTenant(selectedTenant.tenantId);
-      
+
       // Check if the API call was successful
-      if (response?.status || response?.message === 'Tenant deleted successfully') {
+      if (
+        response?.status ||
+        response?.message === "Tenant deleted successfully"
+      ) {
         // Remove from local state after successful deletion
         setTenants((prevTenants) =>
           prevTenants.filter((tenant) => tenant.id !== selectedTenant.id)
         );
-        
+
         // Close dialogs
         setIsDeleteDialogOpen(false);
         setIsDialogOpen(false);
         setSelectedTenant(null);
-        
-        console.log('Tenant deleted successfully');
+
+        console.log("Tenant deleted successfully");
       } else {
-        console.error('Delete failed:', response?.message || 'Unknown error');
+        console.error("Delete failed:", response?.message || "Unknown error");
       }
     } catch (error) {
-      console.error('Failed to delete tenant:', error);
+      console.error("Failed to delete tenant:", error);
     } finally {
       setIsDeleting(false);
     }
   };
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return 'N/A';
-    return format(new Date(dateString), 'MMM d, yyyy');
+    if (!dateString) return "N/A";
+    return format(new Date(dateString), "MMM d, yyyy");
   };
 
   const filteredTenants = tenants?.filter((tenant) => {
@@ -228,7 +238,7 @@ export default function TenantDashboard() {
 
           <Button
             className="gap-2"
-            onClick={() => navigate('/onboarding-flow')}
+            onClick={() => navigate("/onboarding-flow")}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -348,11 +358,11 @@ export default function TenantDashboard() {
                   <Badge
                     className={
                       isActive
-                        ? 'bg-green-50 text-green-700'
-                        : 'bg-red-50 text-red-700'
+                        ? "bg-green-50 text-green-700"
+                        : "bg-red-50 text-red-700"
                     }
                   >
-                    {isActive ? 'Active' : 'Inactive'}
+                    {isActive ? "Active" : "Inactive"}
                   </Badge>
                   <Switch
                     checked={isActive}
@@ -373,11 +383,13 @@ export default function TenantDashboard() {
                                 : tenant
                             )
                           );
+                          console.log("Tenant status updated successfully");
                         } catch (error) {
                           console.error(
-                            'Failed to update tenant status',
+                            "Failed to update tenant status",
                             error
                           );
+                          setIsActive(!checked);
                         }
                       }
                     }}
@@ -388,14 +400,14 @@ export default function TenantDashboard() {
                   size="sm"
                   onClick={handleDeleteClick}
                   className="gap-1 mr-1"
-                  style={{ marginRight: '15px' }}
+                  style={{ marginRight: "15px" }}
                 >
                   <Trash2 className="h-4 w-4" />
                   Delete
                 </Button>
               </DialogTitle>
               <DialogDescription>
-                Complete configuration details for tenant ID:{' '}
+                Complete configuration details for tenant ID:{" "}
                 {selectedTenant.tenantId}
               </DialogDescription>
             </DialogHeader>
@@ -417,7 +429,7 @@ export default function TenantDashboard() {
                       <dt className="text-muted-foreground">Tenant ID:</dt>
                       <dd>{selectedTenant.tenantId}</dd>
                       <dt className="text-muted-foreground">Status:</dt>
-                      <dd>{selectedTenant.active ? 'Active' : 'Inactive'}</dd>
+                      <dd>{selectedTenant.active ? "Active" : "Inactive"}</dd>
                     </dl>
                   </div>
 
@@ -432,12 +444,12 @@ export default function TenantDashboard() {
                       <dt className="text-muted-foreground">Created:</dt>
                       <dd>{formatDate(selectedTenant.createdOn)}</dd>
                       <dt className="text-muted-foreground">Created By:</dt>
-                      <dd>{selectedTenant.createdBy || 'System'}</dd>
+                      <dd>{selectedTenant.createdBy || "System"}</dd>
                       <dt className="text-muted-foreground">Updated:</dt>
                       <dd>
                         {selectedTenant.updatedOn
                           ? formatDate(selectedTenant.updatedOn)
-                          : 'Never'}
+                          : "Never"}
                       </dd>
                     </dl>
                   </div>
@@ -509,17 +521,24 @@ export default function TenantDashboard() {
                       <Loader2 className="h-4 w-4 animate-spin text-slate-500" />
                     )}
                   </h3>
-                  
+
                   {isLoadingModules ? (
-                    <div className="text-sm text-muted-foreground">Loading modules...</div>
+                    <div className="text-sm text-muted-foreground">
+                      Loading modules...
+                    </div>
                   ) : modules && modules.length > 0 ? (
                     <div className="grid md:grid-cols-2 gap-x-12 gap-y-2 text-sm">
                       <div className="col-span-full">
-                        <dt className="text-muted-foreground mb-2">Modules Name:</dt>
+                        <dt className="text-muted-foreground mb-2">
+                          Modules Name:
+                        </dt>
                         <div className="space-y-1">
                           {modules.map((module, index) => (
-                            <dd key={module?.id || `module-${index}`} className="font-mono text-xs bg-slate-100 dark:bg-slate-800 p-1.5 rounded">
-                              {module?.displayName || 'Unknown Module'}
+                            <dd
+                              key={module?.id || `module-${index}`}
+                              className="font-mono text-xs bg-slate-100 dark:bg-slate-800 p-1.5 rounded"
+                            >
+                              {module?.displayName || "Unknown Module"}
                             </dd>
                           ))}
                         </div>
@@ -529,7 +548,8 @@ export default function TenantDashboard() {
                     <div className="text-sm text-muted-foreground">
                       No modules configured for this tenant.
                       <div className="text-xs mt-1">
-                        Environment: {env} | Tenant ID: {selectedTenant.tenantId}
+                        Environment: {env} | Tenant ID:{" "}
+                        {selectedTenant.tenantId}
                       </div>
                     </div>
                   )}
@@ -558,11 +578,12 @@ export default function TenantDashboard() {
               Delete Tenant
             </DialogTitle>
             <DialogDescription>
-              This action cannot be undone. This will permanently delete the tenant{' '}
-              <span className="font-medium">{selectedTenant?.name}</span> and all associated data.
+              This action cannot be undone. This will permanently delete the
+              tenant <span className="font-medium">{selectedTenant?.name}</span>{" "}
+              and all associated data.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="py-4">
             <p className="text-sm text-muted-foreground mb-3">
               Type <span className="font-bold">DELETE</span> to confirm:
@@ -575,7 +596,7 @@ export default function TenantDashboard() {
               className="mb-4"
             />
           </div>
-          
+
           <div className="flex justify-end gap-2">
             <Button
               variant="outline"
@@ -587,7 +608,7 @@ export default function TenantDashboard() {
             <Button
               variant="destructive"
               onClick={handleDeleteConfirm}
-              disabled={deleteConfirmText !== 'DELETE' || isDeleting}
+              disabled={deleteConfirmText !== "DELETE" || isDeleting}
               className="gap-2"
             >
               {isDeleting ? (
@@ -595,7 +616,7 @@ export default function TenantDashboard() {
               ) : (
                 <Trash2 className="h-4 w-4" />
               )}
-              {isDeleting ? 'Deleting...' : 'Delete Tenant'}
+              {isDeleting ? "Deleting..." : "Delete Tenant"}
             </Button>
           </div>
         </DialogContent>

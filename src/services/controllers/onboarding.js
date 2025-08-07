@@ -18,11 +18,14 @@ export const addTenant = async (data) => {
   return response;
 };
 
-export const updateTenant = async (tenantId, isActive) => {
+export const updateTenant = async (tenantId, isActive, environment) => {
   const response = await makeHttpCall({
     method: 'PUT',
     url: `/updateTenant/${tenantId}`,
-    data: {isActive}
+    data: {
+      isActive: isActive.toString(),
+      environment: environment
+    }
   })
   return response;
 }
