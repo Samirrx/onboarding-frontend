@@ -18,10 +18,17 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
 
   const { companyLogo, ...rest } = formData;
 
+  // const data = {
+  //   ...rest,
+  //   modules: formData.modules.map((module: string) => module),
+  //   teamMembers: formData.teamMembers[0]?.email || "",
+  // };
+
   const data = {
     ...rest,
     modules: formData.modules.map((module: string) => module),
-    teamMembers: formData.teamMembers[0]?.email || "",
+    teamMembers: formData.email || "",
+    email: formData.email || "",
   };
 
   const submitTenant = async () => {
@@ -37,24 +44,37 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
 
       // Make API call using axios
       const response = await addTenant(formDataToSend);
-      if (response?.status) {
-        navigate("/", {
-          state: {
-            environment: data.environment,
-          },
-        });
+
+      console.log("Full API response:", response);
+
+      const isSuccess =
+        response?.status === true ||
+        response?.success === true ||
+        response?.data?.status === true ||
+        response?.data?.success === true ||
+        (response?.status >= 200 && response?.status < 300);
+
+      if (isSuccess && !response?.error && !response?.data?.error) {
         notify.success(
-          "Tenant creation has started. A confirmation email will be sent shortly.",
+          "Tenant setup initiated. Confirmation email will follow shortly.",
           {
             autoClose: 5000,
           }
         );
         console.log("Tenant added successfully:", response);
+
+        navigate("/", {
+          state: {
+            environment: data.environment,
+          },
+        });
       } else {
         const errorMessage =
           response?.message ||
           response?.error ||
-          "Failed to create tenant. Please try again.";
+          response?.data?.message ||
+          response?.data?.error ||
+          "Tenant creation failed. Please try again later.";
         notify.error(errorMessage, {
           autoClose: 5000,
         });
@@ -77,7 +97,6 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
       } else if (error.message) {
         errorMessage = error.message;
       }
-
       notify.error(errorMessage, {
         autoClose: 5000,
       });
@@ -85,6 +104,68 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
       setLoading(false);
     }
   };
+
+  // const submitTenant = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const formDataToSend = new FormData();
+  //     formDataToSend.append("tenantDtl", JSON.stringify(data));
+
+  //     if (formData.companyLogo) {
+  //       formDataToSend.append("companyLogo", formData.companyLogo);
+  //     }
+  //     console.log("Form data to send:", formDataToSend);
+
+  //     // Make API call using axios
+  //     const response = await addTenant(formDataToSend);
+  //     if (response?.status) {
+  //       navigate("/", {
+  //         state: {
+  //           environment: data.environment,
+  //         },
+  //       });
+  //       notify.success(
+  //         "Tenant creation has started. A confirmation email will be sent shortly.",
+  //         {
+  //           autoClose: 5000,
+  //         }
+  //       );
+  //       console.log("Tenant added successfully:", response);
+  //     } else {
+  //       const errorMessage =
+  //         response?.message ||
+  //         response?.error ||
+  //         "Failed to create tenant. Please try again.";
+  //       notify.error(errorMessage, {
+  //         autoClose: 5000,
+  //       });
+  //       console.error("Tenant creation failed:", response);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error adding tenant:", error);
+
+  //     let errorMessage =
+  //       "An error occurred while creating the tenant. Please try again.";
+
+  //     if (error.response) {
+  //       errorMessage =
+  //         error.response.data?.message ||
+  //         error.response.data?.error ||
+  //         `Server error: ${error.response.status}`;
+  //     } else if (error.request) {
+  //       errorMessage =
+  //         "Network error. Please check your connection and try again.";
+  //     } else if (error.message) {
+  //       errorMessage = error.message;
+  //     }
+
+  //     notify.error(errorMessage, {
+  //       autoClose: 5000,
+  //     });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   // const submitTenant = async () => {
   //   setLoading(true);
@@ -182,14 +263,14 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
               {data.companySize}
             </dd>
           </div>
-          <div className="grid grid-cols-3 gap-1">
+          {/* <div className="grid grid-cols-3 gap-1">
             <dt className="text-muted-foreground text-justify">
               Team Members:
             </dt>
             <dd className="col-span-2 font-medium text-justify">
               {data.teamMembers}
             </dd>
-          </div>
+          </div> */}
           <div className="grid grid-cols-3 gap-1">
             <dt className="text-muted-foreground text-justify">
               Modules Enabled:
