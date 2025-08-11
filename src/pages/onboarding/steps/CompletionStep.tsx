@@ -18,10 +18,17 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
 
   const { companyLogo, ...rest } = formData;
 
+  // const data = {
+  //   ...rest,
+  //   modules: formData.modules.map((module: string) => module),
+  //   teamMembers: formData.teamMembers[0]?.email || "",
+  // };
+
   const data = {
     ...rest,
     modules: formData.modules.map((module: string) => module),
-    teamMembers: formData.teamMembers[0]?.email || "",
+    teamMembers: formData.email || "",
+    email: formData.email || "",
   };
 
   const submitTenant = async () => {
@@ -256,14 +263,14 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
               {data.companySize}
             </dd>
           </div>
-          <div className="grid grid-cols-3 gap-1">
+          {/* <div className="grid grid-cols-3 gap-1">
             <dt className="text-muted-foreground text-justify">
               Team Members:
             </dt>
             <dd className="col-span-2 font-medium text-justify">
               {data.teamMembers}
             </dd>
-          </div>
+          </div> */}
           <div className="grid grid-cols-3 gap-1">
             <dt className="text-muted-foreground text-justify">
               Modules Enabled:
