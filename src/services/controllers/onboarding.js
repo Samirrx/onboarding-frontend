@@ -45,3 +45,28 @@ export const fetchModuleNames = async (environment, tenantId) => {
   });
   return response;
 }
+
+
+export const updateTenantLogo = async (tenantId, environment, companyLogo) => {
+  const formData = new FormData();
+  formData.append('companyLogo', companyLogo);
+  formData.append('environment', environment);
+
+  const response = await makeHttpCall({
+    method: 'PUT',
+    url: `/updateLogo/${tenantId}`,
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    }
+  });
+  return response;
+};
+
+export const deleteTenantLogo = async (tenantId, environment) => {
+  const response = await makeHttpCall({
+    method: 'DELETE',
+    url: `/deleteLogo/${tenantId}?environment=${environment}`,
+  });
+  return response;
+};

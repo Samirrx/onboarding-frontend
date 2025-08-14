@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Calendar,
   Database,
@@ -10,10 +10,20 @@ import {
   Shield,
   User,
   Trash2,
+  Upload,
+  X,
 } from "lucide-react";
 import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import {
   Dialog,
@@ -28,6 +38,8 @@ import { fetchTenantList } from "@/services/controllers/onboarding";
 import { updateTenant } from "@/services/controllers/onboarding";
 import { fetchModuleNames } from "@/services/controllers/onboarding";
 import { deleteTenant } from "@/services/controllers/onboarding";
+import { updateTenantLogo } from "@/services/controllers/onboarding";
+import { deleteTenantLogo } from "@/services/controllers/onboarding";
 import {
   Select,
   SelectTrigger,
@@ -39,6 +51,7 @@ import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { Input } from "@/components/ui/input";
+import ImageUploadModal from "@/components/ui/ImageUploadModal";
 
 interface Tenant {
   id: number;
@@ -57,6 +70,7 @@ interface Tenant {
   updatedBy: string | null;
   updatedOn: string | null;
   active: boolean;
+  companyLogoUrl: string | null;
 }
 
 export default function TenantDashboard() {
@@ -74,6 +88,12 @@ export default function TenantDashboard() {
   const { state } = location;
   const [env, setEnv] = useState(state?.environment.toLowerCase() || "dev");
   const [isActive, setIsActive] = useState(false);
+  const [isImageUploadModalOpen, setIsImageUploadModalOpen] = useState(false);
+  const [imgSrc, setImgSrc] = useState<string>("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchTenantsLists = async () => {
@@ -122,11 +142,13 @@ export default function TenantDashboard() {
   const handleShowMore = async (tenant: Tenant) => {
     setSelectedTenant(tenant);
     setIsActive(tenant.active);
+    setAvatarUrl(tenant.companyLogoUrl || "");
     setIsDialogOpen(true);
     await fetchModulesForTenant(tenant.tenantId, env);
+    console.log("Selected tenant logo URL:", tenant.companyLogoUrl);
   };
 
-  const handleDeleteClick = () => {
+  const handleDeleteClick = (e: unknown) => {
     setDeleteConfirmText("");
     setIsDeleteDialogOpen(true);
   };
@@ -139,22 +161,16 @@ export default function TenantDashboard() {
     setIsDeleting(true);
     try {
       const response = await deleteTenant(selectedTenant.tenantId);
-
-      // Check if the API call was successful
       if (
         response?.status ||
         response?.message === "Tenant deleted successfully"
       ) {
-        // Remove from local state after successful deletion
         setTenants((prevTenants) =>
           prevTenants.filter((tenant) => tenant.id !== selectedTenant.id)
         );
-
-        // Close dialogs
         setIsDeleteDialogOpen(false);
         setIsDialogOpen(false);
         setSelectedTenant(null);
-
         console.log("Tenant deleted successfully");
       } else {
         console.error("Delete failed:", response?.message || "Unknown error");
@@ -163,6 +179,104 @@ export default function TenantDashboard() {
       console.error("Failed to delete tenant:", error);
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  // Add new handler functions for ImageUploadModal
+  const handleImageUploadModalClose = () => {
+    setIsImageUploadModalOpen(false);
+    setImgSrc("");
+    setSelectedFile(null);
+  };
+
+  const handleSaveImage = async (imageData: any) => {
+    if (!selectedTenant || !selectedFile) return;
+    setIsUploading(true);
+    try {
+      const response = await updateTenantLogo(
+        selectedTenant.tenantId,
+        env,
+        selectedFile
+      );
+      if (response?.status || response?.message?.includes("success")) {
+        console.log("Logo updated successfully");
+        const newLogoUrl =
+          response?.companyLogoUrl ||
+          response?.logoUrl ||
+          URL.createObjectURL(selectedFile);
+        setAvatarUrl(newLogoUrl);
+        setSelectedTenant((prevTenant) =>
+          prevTenant ? { ...prevTenant, companyLogoUrl: newLogoUrl } : null
+        );
+        setTenants((prevTenants) =>
+          prevTenants.map((tenant) =>
+            tenant.id === selectedTenant.id
+              ? { ...tenant, companyLogoUrl: newLogoUrl }
+              : tenant
+          )
+        );
+        handleImageUploadModalClose();
+      } else {
+        console.error(
+          "Failed to update logo:",
+          response?.message || "Unknown error"
+        );
+      }
+    } catch (error) {
+      console.error("Failed to save image:", error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Add handlers for profile picture upload
+  const handleUploadClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    fileInputRef.current?.click();
+  };
+
+  const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImgSrc(reader.result as string);
+        setIsImageUploadModalOpen(true);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDeleteLogo = async (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    if (!selectedTenant) return;
+
+    try {
+      const response = await deleteTenantLogo(selectedTenant.tenantId, env);
+
+      if (response?.status || response?.message?.includes("success")) {
+        setAvatarUrl("");
+        setSelectedTenant((prevTenant) =>
+          prevTenant ? { ...prevTenant, companyLogoUrl: null } : null
+        );
+        setTenants((prevTenants) =>
+          prevTenants.map((tenant) =>
+            tenant.id === selectedTenant.id
+              ? { ...tenant, companyLogoUrl: null }
+              : tenant
+          )
+        );
+        console.log("Logo deleted successfully");
+      } else {
+        console.error(
+          "Failed to delete logo:",
+          response?.message || "Unknown error"
+        );
+      }
+    } catch (error) {
+      console.error("Failed to delete logo:", error);
     }
   };
 
@@ -413,6 +527,69 @@ export default function TenantDashboard() {
             </DialogHeader>
             <div className="h-[calc(100vh-10rem)] overflow-y-auto">
               <div className="grid gap-6 py-4">
+                {/* Profile Picture Card */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="border-b-2 pb-2 text-base font-medium">
+                      Profile Picture
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex flex-col items-center space-y-4">
+                    {/* Avatar container with relative positioning */}
+                    <div className="relative inline-block">
+                      <Avatar className="h-24 w-24">
+                        <AvatarImage
+                          src={avatarUrl || undefined}
+                          alt="Profile"
+                        />
+                        <AvatarFallback className="text-3xl">
+                          {selectedTenant.name?.charAt(0).toUpperCase() || "T"}
+                        </AvatarFallback>
+                      </Avatar>
+                      {/* Only show X icon when there's an actual profile image */}
+                      {avatarUrl && (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                type="button"
+                                onClick={(e) => handleDeleteLogo(e)}
+                                className="absolute top-0 right-0 w-6 h-6 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center z-10 transition-colors duration-200 shadow-md"
+                              >
+                                <X size={12} strokeWidth={3} />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Remove Image</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Upload/Change Tenant Profile Image
+                    </p>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={(e) => handleUploadClick(e)}
+                        className="gap-2"
+                      >
+                        <Upload className="h-4 w-4" />
+                        Upload
+                      </Button>
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => onSelectFile(e)}
+                      className="hidden"
+                    />
+                  </CardContent>
+                </Card>
+
+                <Separator />
+
                 <div className="grid md:grid-cols-2 gap-x-12 gap-y-6">
                   <div>
                     <h3 className="text-sm font-medium flex items-center gap-2 mb-3">
@@ -621,6 +798,17 @@ export default function TenantDashboard() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Image Upload Modal */}
+      <ImageUploadModal
+        isOpen={isImageUploadModalOpen}
+        onClose={handleImageUploadModalClose}
+        onSave={handleSaveImage}
+        imgSrc={imgSrc}
+        isUploading={isUploading}
+        fileSize={selectedFile?.size}
+        originalFileName={selectedFile?.name}
+      />
     </div>
   );
 }
