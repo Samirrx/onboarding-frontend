@@ -554,7 +554,7 @@ export default function TenantDashboard() {
                               <button
                                 type="button"
                                 onClick={(e) => handleDeleteLogo(e)}
-                                className="absolute top-0 right-0 w-6 h-6 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center z-10 transition-colors duration-200 shadow-md"
+                                className="absolute top-0 right-0 w-6 h-6 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center z-10 transition-colors duration-200 shadow-md cursor-pointer"
                               >
                                 <X size={12} strokeWidth={3} />
                               </button>
