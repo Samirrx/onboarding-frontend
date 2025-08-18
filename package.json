@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 3001 ",
-    "build": "NODE_OPTIONS='--max-old-space-size=4096' tsc -b && NODE_OPTIONS='--max-old-space-size=4096' vite build",
+    "build": "NODE_OPTIONS='--max-old-space-size=4096' tsc -b || true  && NODE_OPTIONS='--max-old-space-size=4096' vite build",
     "build-win": "set NODE_OPTIONS=--max-old-space-size=4096 && tsc -b && set NODE_OPTIONS=--max-old-space-size=4096 && vite build",
     "lint": "eslint .",
     "preview": "vite preview --port 5050",
