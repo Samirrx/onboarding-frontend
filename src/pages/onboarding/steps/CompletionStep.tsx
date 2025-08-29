@@ -248,6 +248,14 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
             </dd>
           </div>
           <div className="grid grid-cols-3 gap-1">
+            <dt className="text-muted-foreground text-justify">
+              Company Address:
+            </dt>
+            <dd className="col-span-2 font-medium text-justify">
+              {data.companyAddress}
+            </dd>
+          </div>
+          <div className="grid grid-cols-3 gap-1">
             <dt className="text-muted-foreground text-justify">Email:</dt>
             <dd className="col-span-2 font-medium text-justify">
               {data.email}
