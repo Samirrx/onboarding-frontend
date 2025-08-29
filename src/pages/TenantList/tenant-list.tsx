@@ -71,6 +71,7 @@ interface Tenant {
   updatedOn: string | null;
   active: boolean;
   companyLogoUrl: string | null;
+  companyAddress?: string;
 }
 
 export default function TenantDashboard() {
@@ -554,7 +555,7 @@ export default function TenantDashboard() {
                               <button
                                 type="button"
                                 onClick={(e) => handleDeleteLogo(e)}
-                                className="absolute top-0 right-0 w-6 h-6 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center z-10 transition-colors duration-200 shadow-md"
+                                className="absolute top-0 right-0 w-6 h-6 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center z-10 transition-colors duration-200 shadow-md cursor-pointer"
                               >
                                 <X size={12} strokeWidth={3} />
                               </button>
@@ -601,6 +602,29 @@ export default function TenantDashboard() {
                       <dd>{selectedTenant.id}</dd>
                       <dt className="text-muted-foreground">Name:</dt>
                       <dd>{selectedTenant.name}</dd>
+                      <dt className="text-muted-foreground">Address:</dt>
+                      <dd>
+                        {selectedTenant.companyAddress ? (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="truncate max-w-[250px] cursor-pointer">
+                                  {selectedTenant.companyAddress}
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="max-w-xs break-words">
+                                  {selectedTenant.companyAddress}
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        ) : (
+                          <span className="text-muted-foreground">
+                            Not provided
+                          </span>
+                        )}
+                      </dd>
                       <dt className="text-muted-foreground">Email:</dt>
                       <dd>{selectedTenant.email}</dd>
                       <dt className="text-muted-foreground">Tenant ID:</dt>

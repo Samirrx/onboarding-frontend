@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -30,7 +31,10 @@ export function CompanyDetailsStep({
   onBack,
 }: CompanyDetailsStepProps) {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [firstName, setFirstName] = useState(formData.firstName || "");
+  const [lastName, setLastName] = useState(formData.lastName || "");
   const [companyName, setCompanyName] = useState(formData.companyName || "");
+  const [companyAddress, setCompanyAddress] = useState(formData.companyAddress || "");
   const [industry, setIndustry] = useState(formData.industry || "");
   const [companySize, setcompanySize] = useState(
     formData.companySize || "1-10"
@@ -77,6 +81,18 @@ export function CompanyDetailsStep({
       newErrors.companyName = "Company name is required";
     }
 
+    if(!companyAddress.trim()){
+      newErrors.companyAddress = "Company Address is required";
+    }
+
+    if (!firstName.trim()) {
+      newErrors.firstName = "First name is required";
+    }
+
+    if (!lastName.trim()) {
+      newErrors.lastName = "Last name is required";
+    }
+
     if (!industry) {
       newErrors.industry = "Please select an industry";
     }
@@ -102,7 +118,10 @@ export function CompanyDetailsStep({
 
   useEffect(() => {
     const isValid =
+      firstName.trim() &&
+      lastName.trim() &&
       companyName.trim() &&
+      companyAddress.trim() &&
       industry &&
       companySize &&
       environment &&
@@ -112,7 +131,10 @@ export function CompanyDetailsStep({
       phoneNumber.trim();
     setCanContinue(!!isValid);
   }, [
+    firstName,
+    lastName,
     companyName,
+    companyAddress,
     industry,
     environment,
     companySize,
@@ -135,7 +157,10 @@ export function CompanyDetailsStep({
   const handleSubmit = () => {
     if (validateForm()) {
       updateFormData({
+        firstName,
+        lastName,
         companyName,
+        companyAddress,
         industry,
         companySize,
         environment,
@@ -243,6 +268,38 @@ export function CompanyDetailsStep({
             </SelectContent>
           </Select>
         </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="first-name">
+              First Name <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="first-name"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder="John"
+              className={errors.firstName ? "border-red-500" : ""}
+            />
+            {errors.firstName && (
+              <p className="text-sm text-red-500">{errors.firstName}</p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="last-name">
+              Last Name <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="last-name"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              placeholder="Doe"
+              className={errors.lastName ? "border-red-500" : ""}
+            />
+            {errors.lastName && (
+              <p className="text-sm text-red-500">{errors.lastName}</p>
+            )}
+          </div>
+        </div>
         <div className="space-y-2">
           <Label htmlFor="company-name">
             Company Name {<span className="text-red-500">*</span>}
@@ -258,6 +315,23 @@ export function CompanyDetailsStep({
             <p className="text-sm text-red-500">{errors.companyName}</p>
           )}
         </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="company-address">
+            Company Address <span className="text-red-500">*</span>
+          </Label>
+          <Textarea
+            id="company-address"
+            value={companyAddress}
+            onChange={(e) => setCompanyAddress(e.target.value)}
+            placeholder="123 Main Street, City, State, ZIP"
+            className={errors.companyAddress ? "border-red-500" : ""}
+          />
+          {errors.companyAddress && (
+            <p className="text-sm text-red-500">{errors.companyAddress}</p>
+          )}
+        </div>
+        
         <div className="space-y-2">
           <Label htmlFor="email">
             Email {<span className="text-red-500">*</span>}
