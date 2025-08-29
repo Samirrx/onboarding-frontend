@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -33,6 +34,7 @@ export function CompanyDetailsStep({
   const [firstName, setFirstName] = useState(formData.firstName || "");
   const [lastName, setLastName] = useState(formData.lastName || "");
   const [companyName, setCompanyName] = useState(formData.companyName || "");
+  const [companyAddress, setCompanyAddress] = useState(formData.companyAddress || "");
   const [industry, setIndustry] = useState(formData.industry || "");
   const [companySize, setcompanySize] = useState(
     formData.companySize || "1-10"
@@ -79,6 +81,10 @@ export function CompanyDetailsStep({
       newErrors.companyName = "Company name is required";
     }
 
+    if(!companyAddress.trim()){
+      newErrors.companyAddress = "Company Address is required";
+    }
+
     if (!firstName.trim()) {
       newErrors.firstName = "First name is required";
     }
@@ -115,6 +121,7 @@ export function CompanyDetailsStep({
       firstName.trim() &&
       lastName.trim() &&
       companyName.trim() &&
+      companyAddress.trim() &&
       industry &&
       companySize &&
       environment &&
@@ -127,6 +134,7 @@ export function CompanyDetailsStep({
     firstName,
     lastName,
     companyName,
+    companyAddress,
     industry,
     environment,
     companySize,
@@ -152,6 +160,7 @@ export function CompanyDetailsStep({
         firstName,
         lastName,
         companyName,
+        companyAddress,
         industry,
         companySize,
         environment,
@@ -306,6 +315,23 @@ export function CompanyDetailsStep({
             <p className="text-sm text-red-500">{errors.companyName}</p>
           )}
         </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="company-address">
+            Company Address <span className="text-red-500">*</span>
+          </Label>
+          <Textarea
+            id="company-address"
+            value={companyAddress}
+            onChange={(e) => setCompanyAddress(e.target.value)}
+            placeholder="123 Main Street, City, State, ZIP"
+            className={errors.companyAddress ? "border-red-500" : ""}
+          />
+          {errors.companyAddress && (
+            <p className="text-sm text-red-500">{errors.companyAddress}</p>
+          )}
+        </div>
+        
         <div className="space-y-2">
           <Label htmlFor="email">
             Email {<span className="text-red-500">*</span>}
