@@ -37,11 +37,11 @@ export function WorkspaceSetupStep({
       description:
         "A centralized platform for managing customer relationships, and activities.",
     },
-    // {
-    //   id: 'FSM',
-    //   name: 'FSM',
-    //   description: 'Efficiently manage field teams, job assignments, and on-site service tasks.'
-    // },
+    {
+      id: 'FSM',
+      name: 'FSM',
+      description: 'Efficiently manage field teams, job assignments, and on-site service tasks.'
+    },
     {
       id: "ITSM",
       name: "ITSM",
