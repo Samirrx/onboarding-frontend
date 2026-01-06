@@ -60,11 +60,11 @@ export function WorkspaceSetupStep({
       description:
         "Track, manage, and maintain physical and digital assets across their lifecycle.",
     },
-    // {
-    //   id: 'HRMS',
-    //   name: 'HRMS',
-    //   description: 'Managing employee data, tracking performance, and automating.'
-    // },
+    {
+      id: 'HRMS',
+      name: 'HRMS',
+      description: 'Managing employee data, tracking performance, and automating.'
+    },
     {
       id: "Attendance Management",
       name: "Attendance Management",
