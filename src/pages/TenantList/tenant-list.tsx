@@ -345,6 +345,7 @@ export default function TenantDashboard() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="dev">Dev</SelectItem>
+                <SelectItem value="demo">Demo</SelectItem>
                 <SelectItem value="preprod">Preprod</SelectItem>
                 <SelectItem value="app">App</SelectItem>
               </SelectContent>

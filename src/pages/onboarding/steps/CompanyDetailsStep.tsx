@@ -45,7 +45,7 @@ export function CompanyDetailsStep({
   const [instanceType, setInstanceType] = useState(formData.instanceType || "");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [canContinue, setCanContinue] = useState(false);
-  const environmentOptions = ["Dev", "Preprod", "App"].sort();
+  const environmentOptions = ["Dev", "Demo", "Preprod", "App"].sort();
   const instanceOptions = ["Free", "Trial", "Paid", "Poc"].sort();
   const industryOptions = [
     { value: "technology", label: "Technology" },
