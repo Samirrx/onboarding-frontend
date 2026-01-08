@@ -8,7 +8,7 @@ import { AppSidebar } from '@/pages/sidebar/sidebar';
 import Breadcrumb from './breadcrump';
 import { notify } from '../hooks/toastUtils';
 
-const excludedUrls = ['/login'];
+const excludedUrls = ['/login', '/signup', '/Signup'];
 
 const Layout = () => {
   const location = useLocation();
