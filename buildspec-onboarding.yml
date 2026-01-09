@@ -5,7 +5,7 @@ phases:
       nodejs: 18
   pre_build:
     commands:
-      - npm ci
+      - npm ci --legacy-peer-deps
   build:
     commands:
       - CI=false npm run build
