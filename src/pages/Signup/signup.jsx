@@ -149,74 +149,33 @@ export default function Signup() {
 
       console.log("🚀 Payload:", tenantDetails);
 
-      // ========== API CALL #1: Create Tenant Account ==========
+      // ========== API CALL: Create Tenant Account ==========
       const data = await createTenantAccount(formDataPayload);
 
       console.log("📥 API Response:", data);
 
-      // ✅ FIXED: Check data.result instead of data.data
+      // Check if signup was successful
       if (data && data.result) {
         setLoadingStep(2); // Setting up workspace
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        
+        setLoadingStep(3); // Finalizing
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        const token = data.result.token;
         const tenantId = data.result.tenantId;
 
-        if (token && tenantId) {
-          // Store auth credentials
-          localStorage.setItem("authToken", token);
-          localStorage.setItem("userEmail", formData.email);
-          localStorage.setItem("tenantId", tenantId);
-
-          console.log("✅ Token and TenantId stored successfully");
-
-          // Show setting up workspace step
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-          setLoadingStep(3); // Verifying
-
-          try {
-            // Optional verification call
-            const verifyResponse = await fetch(
-              "https://app-api.dglide.com/api/v1/auth",
-              {
-                method: "GET",
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  "X-TenantID": tenantId,
-                  "Content-Type": "application/json",
-                },
-              }
-            );
-
-            console.log(
-              "🔐 Verification response status:",
-              verifyResponse.status
-            );
-          } catch (verifyError) {
-            console.error("❌ Verification error (non-blocking):", verifyError);
-          }
-
-          // Show success step
-          setLoadingStep(4);
-          await new Promise((resolve) => setTimeout(resolve, 1500));
-
-          // Perform redirect
-          console.log("🚀 Redirecting to login page...");
-          window.location.href = "https://app.dglide.com/login";
-        } else {
-          console.error("⚠️ Token or TenantId missing in response");
-          setIsLoading(false);
-          setLoadingStep(0);
-          setErrors({
-            form: "Account created but authentication failed. Please try logging in manually.",
-          });
-
-          // Redirect to login anyway after 2 seconds
-          setTimeout(() => {
-            window.location.href = `https://app.dglide.com/login?email=${encodeURIComponent(
-              formData.email
-            )}`;
-          }, 2000);
-        }
+        console.log("✅ Signup successful, redirecting to login...");
+        
+        setLoadingStep(4); // Success
+        
+        // Navigate to login with credentials in URL
+        setTimeout(() => {
+          window.location.href = `https://app.dglide.com/login?user=${encodeURIComponent(
+            formData.email
+          )}&tenant=${encodeURIComponent(tenantId)}&pass=${encodeURIComponent(
+            formData.password
+          )}`;
+        }, 1500);
       } else {
         console.error("❌ Signup failed:", data);
         setLoadingStep(0);
