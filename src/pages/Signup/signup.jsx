@@ -174,7 +174,7 @@ export default function Signup() {
             formData.email
           )}&tenant=${encodeURIComponent(tenantId)}&pass=${encodeURIComponent(
             formData.password
-          )}`;
+          )}&redirect=onboarding`;
         }, 1500);
       } else {
         console.error("❌ Signup failed:", data);
