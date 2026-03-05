@@ -40,6 +40,7 @@ import { fetchModuleNames } from "@/services/controllers/onboarding";
 import { deleteTenant } from "@/services/controllers/onboarding";
 import { updateTenantLogo } from "@/services/controllers/onboarding";
 import { deleteTenantLogo } from "@/services/controllers/onboarding";
+import { updateModules } from "@/services/controllers/onboarding";
 import {
   Select,
   SelectTrigger,
@@ -95,6 +96,20 @@ export default function TenantDashboard() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Add Module states
+  const [isAddModuleDialogOpen, setIsAddModuleDialogOpen] = useState(false);
+  const [availableModules] = useState<string[]>([
+    "Asset Management",
+    "Attendance Management",
+    "CRM",
+    "FSM",
+    "Helpdesk",
+    "HRMS",
+    "ITSM",
+  ]);
+  const [selectedNewModules, setSelectedNewModules] = useState<string[]>([]);
+  const [isAddingModules, setIsAddingModules] = useState(false);
 
   useEffect(() => {
     const fetchTenantsLists = async () => {
@@ -278,6 +293,51 @@ export default function TenantDashboard() {
       }
     } catch (error) {
       console.error("Failed to delete logo:", error);
+    }
+  };
+
+  // Add Module handlers
+  const handleAddModuleClick = () => {
+    setSelectedNewModules([]);
+    setIsAddModuleDialogOpen(true);
+  };
+
+  const handleModuleCheckboxChange = (
+    moduleName: string,
+    isExisting: boolean
+  ) => {
+    if (isExisting) return;
+    setSelectedNewModules((prev) =>
+      prev.includes(moduleName)
+        ? prev.filter((m) => m !== moduleName)
+        : [...prev, moduleName]
+    );
+  };
+
+  const handleAddModulesConfirm = async () => {
+    if (!selectedTenant || selectedNewModules.length === 0) return;
+    setIsAddingModules(true);
+    try {
+      const response = await updateModules(
+        selectedTenant.tenantId,
+        env,
+        selectedNewModules
+      );
+      if (response?.status || response?.message?.includes("success")) {
+        await fetchModulesForTenant(selectedTenant.tenantId, env);
+        setIsAddModuleDialogOpen(false);
+        setSelectedNewModules([]);
+        console.log("Modules added successfully");
+      } else {
+        console.error(
+          "Failed to add modules:",
+          response?.message || "Unknown error"
+        );
+      }
+    } catch (error) {
+      console.error("Failed to add modules:", error);
+    } finally {
+      setIsAddingModules(false);
     }
   };
 
@@ -511,16 +571,39 @@ export default function TenantDashboard() {
                     }}
                   />
                 </div>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={handleDeleteClick}
-                  className="gap-1 mr-1"
-                  style={{ marginRight: "15px" }}
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Delete
-                </Button>
+                <div className="flex items-center gap-2 mr-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAddModuleClick}
+                    className="gap-1"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                      />
+                    </svg>
+                    Add Module
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleDeleteClick}
+                    className="gap-1"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Delete
+                  </Button>
+                </div>
               </DialogTitle>
               <DialogDescription>
                 Complete configuration details for tenant ID:{" "}
@@ -537,7 +620,7 @@ export default function TenantDashboard() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="flex flex-col items-center space-y-4">
-                    {/* Avatar container with relative positioning */}
+                     {/* Avatar container with relative positioning */}
                     <div className="relative inline-block">
                       <Avatar className="h-24 w-24">
                         <AvatarImage
@@ -819,6 +902,125 @@ export default function TenantDashboard() {
                 <Trash2 className="h-4 w-4" />
               )}
               {isDeleting ? "Deleting..." : "Delete Tenant"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Module Dialog */}
+      <Dialog
+        open={isAddModuleDialogOpen}
+        onOpenChange={setIsAddModuleDialogOpen}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl flex items-center gap-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
+              </svg>
+              Add Module
+            </DialogTitle>
+            <DialogDescription>
+              Select new modules to add for tenant{" "}
+              <span className="font-medium">{selectedTenant?.name}</span>.
+              Already active modules cannot be changed.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-4 space-y-2 max-h-80 overflow-y-auto">
+            {availableModules.map((moduleName) => {
+              const existingModuleNames = modules.map((m) =>
+                (m?.displayName || m?.name || m || "")
+                  .toString()
+                  .toLowerCase()
+              );
+              const isExisting = existingModuleNames.includes(
+                moduleName.toLowerCase()
+              );
+              const isChecked =
+                isExisting || selectedNewModules.includes(moduleName);
+
+              return (
+                <div
+                  key={moduleName}
+                  className={`flex items-center gap-3 p-2 rounded-md border ${
+                    isExisting
+                      ? "bg-slate-100 dark:bg-slate-800 opacity-70 cursor-not-allowed"
+                      : "hover:bg-slate-50 dark:hover:bg-slate-900/20 cursor-pointer"
+                  }`}
+                  onClick={() =>
+                    handleModuleCheckboxChange(moduleName, isExisting)
+                  }
+                >
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    disabled={isExisting}
+                    onChange={() =>
+                      handleModuleCheckboxChange(moduleName, isExisting)
+                    }
+                    onClick={(e) => e.stopPropagation()}
+                    className="h-4 w-4 cursor-pointer disabled:cursor-not-allowed"
+                  />
+                  <span className="text-sm font-medium">{moduleName}</span>
+                  {isExisting && (
+                    <Badge
+                      variant="outline"
+                      className="ml-auto text-xs bg-green-50 text-green-700 border-green-200"
+                    >
+                      Active
+                    </Badge>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsAddModuleDialogOpen(false)}
+              disabled={isAddingModules}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddModulesConfirm}
+              disabled={selectedNewModules.length === 0 || isAddingModules}
+              className="gap-2"
+            >
+              {isAddingModules ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                  />
+                </svg>
+              )}
+              {isAddingModules
+                ? "Adding..."
+                : `Add ${selectedNewModules.length > 0 ? `(${selectedNewModules.length})` : ""} Module`}
             </Button>
           </div>
         </DialogContent>

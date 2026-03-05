@@ -70,3 +70,15 @@ export const deleteTenantLogo = async (tenantId, environment) => {
   });
   return response;
 };
+
+export const updateModules = async (tenantId, environment, modules) => {
+  const response = await makeHttpCall({
+    method: 'PUT',
+    url: `/updateModules/${tenantId}`,
+    data: {
+      environment: environment,
+      modules: modules
+    }
+  });
+  return response;
+};
