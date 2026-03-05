@@ -1,5 +1,5 @@
 import './App.css';
-import Layout from '@/Layout/layout';
+import Layout from './layout/layout';
 import { BrowserRouter } from 'react-router-dom';
 import { ToastProvider } from '@/hooks/toastUtils';
 import store from '@/redux/store';
