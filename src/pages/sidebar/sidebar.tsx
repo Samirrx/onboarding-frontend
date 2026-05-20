@@ -51,6 +51,10 @@ const data = {
         {
           title: 'Onboarding Setup',
           url: '/onboarding-flow'
+        },
+        {
+          title: 'System Maintenance',
+          url: '/system-maintenance'
         }
       ]
     }
