@@ -3,6 +3,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
 import OnboardingFlow from '@/pages/onboarding/OnboardingFlow';
+import SystemMaintenancePage from '@/pages/onboarding/SystemMaintenance';
 import Login from '@/pages/Login/login';
 import Signup from '@/pages/Signup/signup';
 import TenantList from '@/pages/TenantList/tenant-list';
@@ -14,6 +15,7 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<TenantList />} />
       <Route path="/onboarding-flow" element={<OnboardingFlow />} />
+      <Route path="/system-maintenance" element={<SystemMaintenancePage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/Signup" element={<Navigate to="/signup" replace />} />
