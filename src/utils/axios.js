@@ -77,7 +77,7 @@ const refreshAuthToken = async () => {
   }
 
   try {
-    const refreshTokenURL = `${API_ENDPOINT}/user/refresh-token`;
+    const refreshTokenURL = `${API_ENDPOINT}/api/v1/onboarding/user/refresh-token`;
     const refreshResponse = await axios.create()({
       method: "POST",
       url: refreshTokenURL,
@@ -299,7 +299,7 @@ export const userLogin = async (credentials) => {
   try {
     const response = await makeHttpCall({
       method: "POST",
-      url: "/user/login",
+      url: "/api/v1/onboarding/user/login",
       data: credentials,
       headers: { username: credentials?.username },
     });
@@ -335,7 +335,7 @@ export const userLogin = async (credentials) => {
 
 //   return await makeHttpCall({
 //     method: 'POST',
-//     url: '/user/login',
+//     url: '/api/v1/onboarding/user/login',
 //     data,
 //     headers: { username: data?.username }
 //   });

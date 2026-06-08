@@ -5,7 +5,7 @@ export const userLogin = async (tenantid, data) => {
   try {
     const response = await makeHttpCall({
       method: 'POST',
-      url: '/user/login',
+      url: '/api/v1/onboarding/user/login',
       data: data,
       headers: { 'X-TenantID': tenantid, username: data?.username }
     });

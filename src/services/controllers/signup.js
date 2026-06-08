@@ -15,7 +15,7 @@ export const fetchCountryByIP = async (ip) => {
 export const createTenantAccount = async (formData) => {
   const response = await makeHttpCall({
     method: 'POST',
-    url: `/signup`,
+    url: `/api/v1/onboarding/signup`,
     data: formData,
     headers: {
       'Content-Type': 'multipart/form-data',

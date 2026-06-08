@@ -3,7 +3,7 @@ import makeHttpCall from '../../utils/axios';
 export const fetchTenantList = async (env) => {
   const response = await makeHttpCall({
     method: 'GET',
-    url: `/getAllTenant?environment=${env}`,
+    url: `/api/v1/onboarding/getAllTenant?environment=${env}`,
   });
   return response;
 };
@@ -12,7 +12,7 @@ export const fetchTenantList = async (env) => {
 export const addTenant = async (data) => {
   const response = await makeHttpCall({
     method: 'POST',
-    url: `/addTenant`,
+    url: `/api/v1/onboarding/addTenant`,
     data
   });
   return response;
@@ -21,7 +21,7 @@ export const addTenant = async (data) => {
 export const updateTenant = async (tenantId, isActive, environment) => {
   const response = await makeHttpCall({
     method: 'PUT',
-    url: `/updateTenant/${tenantId}`,
+    url: `/api/v1/onboarding/updateTenant/${tenantId}`,
     data: {
       isActive: isActive.toString(),
       environment: environment
@@ -33,7 +33,7 @@ export const updateTenant = async (tenantId, isActive, environment) => {
 export const deleteTenant = async (tenantId) => {
   const response = await makeHttpCall({
     method: 'DELETE',
-    url: `/deleteTenant/${tenantId}`,
+    url: `/api/v1/onboarding/deleteTenant/${tenantId}`,
   });
   return response;
 };
@@ -41,7 +41,7 @@ export const deleteTenant = async (tenantId) => {
 export const fetchModuleNames = async (environment, tenantId) => {
   const response = await makeHttpCall({
     method: 'GET',
-    url: `/${environment}/module/${tenantId}`,
+    url: `/api/v1/onboarding/${environment}/module/${tenantId}`,
   });
   return response;
 }
@@ -54,7 +54,7 @@ export const updateTenantLogo = async (tenantId, environment, companyLogo) => {
 
   const response = await makeHttpCall({
     method: 'PUT',
-    url: `/updateLogo/${tenantId}`,
+    url: `/api/v1/onboarding/updateLogo/${tenantId}`,
     data: formData,
     headers: {
       'Content-Type': 'multipart/form-data',
@@ -66,7 +66,7 @@ export const updateTenantLogo = async (tenantId, environment, companyLogo) => {
 export const deleteTenantLogo = async (tenantId, environment) => {
   const response = await makeHttpCall({
     method: 'DELETE',
-    url: `/deleteLogo/${tenantId}?environment=${environment}`,
+    url: `/api/v1/onboarding/deleteLogo/${tenantId}?environment=${environment}`,
   });
   return response;
 };
@@ -74,7 +74,7 @@ export const deleteTenantLogo = async (tenantId, environment) => {
 export const updateModules = async (tenantId, environment, modules) => {
   const response = await makeHttpCall({
     method: 'PUT',
-    url: `/updateModules/${tenantId}`,
+    url: `/api/v1/onboarding/updateModules/${tenantId}`,
     data: {
       environment: environment,
       modules: modules

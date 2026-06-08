@@ -3,7 +3,7 @@ import makeHttpCall from '../../utils/axios';
 export const fetchAllMaintenance = async () => {
   const response = await makeHttpCall({
     method: 'GET',
-    url: `/maintenance`,
+    url: `/api/v1/onboarding/maintenance`,
   });
   return response;
 };
@@ -11,7 +11,7 @@ export const fetchAllMaintenance = async () => {
 export const createMaintenance = async (data) => {
   const response = await makeHttpCall({
     method: 'POST',
-    url: `/maintenance`,
+    url: `/api/v1/onboarding/maintenance`,
     data
   });
   return response;
@@ -20,7 +20,7 @@ export const createMaintenance = async (data) => {
 export const updateMaintenance = async (id, data) => {
   const response = await makeHttpCall({
     method: 'PUT',
-    url: `/maintenance/${id}`,
+    url: `/api/v1/onboarding/maintenance/${id}`,
     data
   });
   return response;
@@ -29,7 +29,7 @@ export const updateMaintenance = async (id, data) => {
 export const deleteMaintenance = async (id) => {
   const response = await makeHttpCall({
     method: 'DELETE',
-    url: `/maintenance/${id}`,
+    url: `/api/v1/onboarding/maintenance/${id}`,
   });
   return response;
 };
@@ -37,7 +37,7 @@ export const deleteMaintenance = async (id) => {
 export const fetchActiveMaintenanceForTenant = async (tenantId) => {
   const response = await makeHttpCall({
     method: 'GET',
-    url: `/maintenance/active/${tenantId}`,
+    url: `/api/v1/onboarding/maintenance/active/${tenantId}`,
   });
   return response;
 };

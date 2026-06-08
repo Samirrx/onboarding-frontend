@@ -28,7 +28,7 @@ export default function MaintenancePopup({ tenantId }: { tenantId: string }) {
   const fetchMaintenance = async () => {
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_API_URL}/maintenance/active/${tenantId}`,
+        `${import.meta.env.VITE_API_URL}/api/v1/onboarding/maintenance/active/${tenantId}`,
       );
       const list = res.data.data;
       if (list && list.length > 0) {
