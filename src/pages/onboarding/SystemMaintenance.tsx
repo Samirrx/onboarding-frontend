@@ -651,8 +651,8 @@ export default function SystemMaintenancePage() {
                   <span className="font-semibold">{form.environment}</span>
                 </div>
               ) : (
-                <div className="border border-input rounded-md max-h-48 overflow-auto divide-y divide-border">
-                  <div className="grid min-w-[42rem] grid-cols-[auto_minmax(12rem,1fr)_minmax(18rem,auto)] items-center gap-3 px-4 py-2 bg-slate-50 dark:bg-slate-900/50 text-xs font-medium text-muted-foreground">
+                <div className="border border-input rounded-md max-h-70 overflow-auto divide-y divide-border">
+                  <div className="grid min-w-[42rem] grid-cols-[auto_minmax(12rem,1fr)_minmax(18rem,auto)] items-center gap-3 px-4 py-2 bg-slate-50 dark:bg-slate-900/50 text-xs font-medium text-muted-foreground sticky top-0 z-10">
                     <div></div>
                     <div>Tenant Name</div>
                     <div className="text-right">Tenant ID</div>
