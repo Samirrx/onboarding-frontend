@@ -1,50 +1,48 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import AuthLogin from './AuthLogin';
-import BackgroundPattern2 from './BackgroundPattern2';
-import './Login.css';
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import AuthLogin from "./AuthLogin";
+import { motion } from "framer-motion";
+import BackgroundPattern2 from "./BackgroundPattern2";
+import "./Login.css";
 
 const Login = () => {
   const slides = [
     {
-      image:
-        'https://res.cloudinary.com/dg8byfecw/image/upload/v1731787305/3556960_orcrht.jpg',
-      text: 'Create Interactive Dashboards',
-      description: 'Design customizable dashboards for real-time data insights.'
+      image: "https://opsbeats.s3.ap-south-1.amazonaws.com/dashboard.png",
+      text: "Create Interactive Dashboards",
+      description:
+        "Design customizable dashboards for real-time data insights.",
     },
     {
-      image:
-        'https://res.cloudinary.com/dg8byfecw/image/upload/v1731787305/4966434_mba6re.jpg',
-      text: 'Create Dynamic Forms',
+      image: "https://opsbeats.s3.ap-south-1.amazonaws.com/recorddetail.png",
+      text: "Create Dynamic Forms",
       description:
-        'Build responsive forms adapting to user inputs effortlessly.'
+        "Build responsive forms adapting to user inputs effortlessly.",
     },
     {
-      image:
-        'https://res.cloudinary.com/dg8byfecw/image/upload/v1731787308/NU_Flat_6_14_cixtrv.jpg',
-      text: 'Create Powerful Workflows',
+      image: "https://opsbeats.s3.ap-south-1.amazonaws.com/workflow.png",
+      text: "Create Powerful Workflows",
       description:
-        'Automate workflows and streamline tasks using intuitive tools.'
-    }
+        "Automate workflows and streamline tasks using intuitive tools.",
+    },
   ];
-
   const [isTwoStepVerfication, setIsTwoStepVerification] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('auth-token');
+    const token = localStorage.getItem("auth-token");
 
-    if (token && location.pathname === '/login') {
-      navigate('/');
+    if (token && location.pathname === "/login") {
+      navigate("/");
     }
   }, [location, navigate]);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
-    if (queryParams.has('twostep')) {
+    if (queryParams.has("twostep")) {
       setIsTwoStepVerification(true);
     }
   }, [location.search]);
@@ -67,14 +65,24 @@ const Login = () => {
       {/* Left side - Image Slider and Logo (hidden on mobile) */}
       <div className="relative hidden lg:block lg:w-1/2">
         <BackgroundPattern2>
-          <div className="flex items-center justify-center">
-            <img
-              className="mr-4 w-72"
-              src="https://res.cloudinary.com/dg8byfecw/image/upload/v1731789959/img-a2-login.339d1afb2c0b604a4665ad8d90b73684_kshkev.svg"
-              layout="fill"
-              objectfit="cover"
-              alt="Login background"
-            />
+          <div className="flex items-center justify-center w-full h-full">
+            <motion.div
+              animate={{ y: [0, -12, 0] }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              className="w-full max-w-[77%]"
+            >
+              <div className="rounded-[32px] border border-white/5 bg-white/10 p-4 backdrop-blur-xl shadow-[0_0_150px_rgba(30,58,138,0.35)]">
+                <img
+                  src="https://opsbeats.s3.ap-south-1.amazonaws.com/recorddetail.png"
+                  alt="Record Detail"
+                  className="w-full h-auto object-cover rounded-[20px]"
+                />
+              </div>
+            </motion.div>
           </div>
         </BackgroundPattern2>
         <div className="absolute inset-0 bg-black bg-opacity-50" />
@@ -94,7 +102,7 @@ const Login = () => {
                 <button
                   key={index}
                   className={`h-2 w-2 cursor-pointer rounded-full ${
-                    index === currentSlide ? 'bg-white' : 'bg-white/50'
+                    index === currentSlide ? "bg-white" : "bg-white/50"
                   } transition-all duration-300`}
                   onClick={() => setCurrentSlide(index)}
                   aria-label={`Go to slide ${index + 1}`}
