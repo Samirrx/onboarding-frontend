@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   Loader2,
   MoreVertical,
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -52,18 +53,69 @@ const STATUS_BADGE: Record<string, string> = {
   INACTIVE: "bg-slate-100 text-slate-500 border-slate-200",
 };
 
+const normalizeMaintenanceStatus = (status?: string) =>
+  (status || "SCHEDULED").trim().toUpperCase();
+
 const IMPACT_COLOR: Record<string, string> = {
   High: "text-red-600",
   Medium: "text-orange-500",
   Low: "text-yellow-600",
 };
 
-const toLocalDateTimeInput = (isoString: string): string => {
-  if (!isoString) return "";
-  const date = new Date(isoString);
-  const offset = date.getTimezoneOffset();
-  const localDate = new Date(date.getTime() - offset * 60 * 1000);
-  return localDate.toISOString().slice(0, 16);
+const maintenanceGridColumns =
+  "grid-cols-[minmax(12rem,2fr)_minmax(14rem,2fr)_minmax(5rem,.7fr)_minmax(7rem,.9fr)_minmax(7rem,.8fr)_minmax(8rem,.8fr)_3rem]";
+
+const MONTH_NAMES = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
+const toDateTimeInputValue = (dateTime: string): string => {
+  if (!dateTime) return "";
+  return dateTime
+    .replace(" ", "T")
+    .replace(/\.\d+/, "")
+    .replace(/(?:Z|[+-]\d{2}:?\d{2})$/, "")
+    .slice(0, 16);
+};
+
+const parseWallClockDateTime = (dateTime: string) => {
+  const normalized = toDateTimeInputValue(dateTime);
+  const match = normalized.match(
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/,
+  );
+  if (!match) return null;
+
+  const [, year, month, day, hour, minute] = match;
+  return {
+    year: Number(year),
+    month: Number(month),
+    day: Number(day),
+    hour: Number(hour),
+    minute: Number(minute),
+  };
+};
+
+const formatScheduleDateTime = (dateTime: string) => {
+  const parsed = parseWallClockDateTime(dateTime);
+  if (!parsed) return dateTime || "-";
+
+  const hour12 = parsed.hour % 12 || 12;
+  const period = parsed.hour >= 12 ? "PM" : "AM";
+
+  return `${MONTH_NAMES[parsed.month - 1]} ${parsed.day}, ${parsed.year}, ${String(
+    hour12,
+  ).padStart(2, "0")}:${String(parsed.minute).padStart(2, "0")} ${period}`;
 };
 
 // Triple dot dropdown component
@@ -160,7 +212,13 @@ export default function SystemMaintenancePage() {
     setListLoading(true);
     try {
       const res = await fetchAllMaintenance();
-      setMaintenanceList(res?.result || res?.data || []);
+      const list = res?.result || res?.data || [];
+      setMaintenanceList(
+        list.map((item: Maintenance) => ({
+          ...item,
+          status: normalizeMaintenanceStatus(item.status),
+        })),
+      );
     } catch (e) {
       console.error("Error fetching maintenance:", e);
     } finally {
@@ -187,7 +245,25 @@ export default function SystemMaintenancePage() {
 
   const calcDowntime = (start: string, end: string) => {
     if (!start || !end) return "";
-    const diff = new Date(end).getTime() - new Date(start).getTime();
+    const startParts = parseWallClockDateTime(start);
+    const endParts = parseWallClockDateTime(end);
+    if (!startParts || !endParts) return "";
+
+    const startTime = new Date(
+      startParts.year,
+      startParts.month - 1,
+      startParts.day,
+      startParts.hour,
+      startParts.minute,
+    ).getTime();
+    const endTime = new Date(
+      endParts.year,
+      endParts.month - 1,
+      endParts.day,
+      endParts.hour,
+      endParts.minute,
+    ).getTime();
+    const diff = endTime - startTime;
     if (diff <= 0) return "";
     const mins = Math.floor(diff / (1000 * 60));
     const hrs = Math.floor(mins / 60);
@@ -198,10 +274,15 @@ export default function SystemMaintenancePage() {
   const handleSubmit = async () => {
     setLoading(true);
     try {
+      const payload = {
+        ...form,
+        status: normalizeMaintenanceStatus(form.status),
+      };
+
       if (editItem?.id) {
-        await updateMaintenance(editItem.id, { ...form });
+        await updateMaintenance(editItem.id, payload);
       } else {
-        await createMaintenance({ ...form });
+        await createMaintenance(payload);
       }
       closeForm();
       await loadMaintenance();
@@ -216,8 +297,9 @@ export default function SystemMaintenancePage() {
     setEditItem(item);
     setForm({
       ...item,
-      startDatetime: toLocalDateTimeInput(item.startDatetime),
-      endDatetime: toLocalDateTimeInput(item.endDatetime),
+      startDatetime: toDateTimeInputValue(item.startDatetime),
+      endDatetime: toDateTimeInputValue(item.endDatetime),
+      status: normalizeMaintenanceStatus(item.status),
       impactLevel: item.impactLevel || "",
     });
     if (item.environment) loadTenants(item.environment);
@@ -287,16 +369,18 @@ export default function SystemMaintenancePage() {
       </div>
 
       {/* ── Table ── */}
-      <div className="rounded-md border">
+      <div className="overflow-x-auto rounded-md border">
         {/* Table header */}
-        <div className="bg-slate-50 dark:bg-slate-900/50 p-4 grid grid-cols-12 font-medium text-sm border-b">
-          <div className="col-span-3 text-left">Title</div>
-          <div className="col-span-3 text-left">Schedule</div>
-          <div className="col-span-1 text-left">Impact</div>
-          <div className="col-span-2 text-left">Status</div>
-          <div className="col-span-1 text-left">Tenants</div>
-          <div className="col-span-1 text-left">Environment</div>
-          <div className="col-span-1 text-right pr-2">Actions</div>
+        <div
+          className={`grid min-w-[72rem] ${maintenanceGridColumns} gap-4 bg-slate-50 dark:bg-slate-900/50 px-4 py-3 font-medium text-sm border-b items-center`}
+        >
+          <div className="text-left">Title</div>
+          <div className="text-left">Schedule</div>
+          <div className="text-center">Impact</div>
+          <div className="text-center">Status</div>
+          <div className="text-center">Tenants</div>
+          <div className="text-center">Environment</div>
+          <div className="text-center">Actions</div>
         </div>
 
         {/* Empty / Loading states */}
@@ -312,19 +396,21 @@ export default function SystemMaintenancePage() {
         )}
 
         {/* Rows */}
-        <div className="h-[calc(100vh-16rem)] overflow-y-auto">
+        <div className="h-[calc(100vh-16rem)] min-w-[72rem] overflow-y-auto">
           {maintenanceList.map((item) => (
             <div
               key={item.id}
-              className="p-4 grid grid-cols-12 gap-4 items-center border-b last:border-b-0 hover:bg-slate-50 dark:hover:bg-slate-900/20 transition-colors"
+              className={`grid ${maintenanceGridColumns} gap-4 items-center border-b last:border-b-0 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-900/20 transition-colors`}
             >
               {/* Title + Description */}
-              <div className="col-span-3">
+              <div className="min-w-0">
                 <div className="flex flex-col items-start">
-                  <span className="font-medium">{item.title}</span>
+                  <span className="font-medium truncate max-w-full">
+                    {item.title}
+                  </span>
                   {item.description && (
                     <span
-                      className="text-sm text-muted-foreground mt-1 truncate max-w-56"
+                      className="text-sm text-muted-foreground mt-1 truncate max-w-full"
                       title={item.description}
                     >
                       {item.description}
@@ -334,32 +420,20 @@ export default function SystemMaintenancePage() {
               </div>
 
               {/* Schedule */}
-              <div className="col-span-3">
+              <div className="min-w-0">
                 <div className="flex flex-col items-start">
                   <div className="text-sm">
-                    {new Date(item.startDatetime).toLocaleString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {formatScheduleDateTime(item.startDatetime)}
                   </div>
                   <div className="text-xs text-muted-foreground mt-0.5">
                     {calcDowntime(item.startDatetime, item.endDatetime) ||
-                      "to " +
-                        new Date(item.endDatetime).toLocaleString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                      "to " + formatScheduleDateTime(item.endDatetime)}
                   </div>
                 </div>
               </div>
 
               {/* Impact Level */}
-              <div className="col-span-1">
+              <div className="text-center">
                 <span
                   className={`text-sm font-medium ${IMPACT_COLOR[item.impactLevel || ""] || "text-muted-foreground"}`}
                 >
@@ -368,24 +442,27 @@ export default function SystemMaintenancePage() {
               </div>
 
               {/* Status */}
-              <div className="col-span-2">
+              <div className="flex justify-center">
                 <Badge
                   variant="outline"
-                  className={STATUS_BADGE[item.status] || STATUS_BADGE.INACTIVE}
+                  className={
+                    STATUS_BADGE[normalizeMaintenanceStatus(item.status)] ||
+                    STATUS_BADGE.INACTIVE
+                  }
                 >
-                  {item.status}
+                  {normalizeMaintenanceStatus(item.status)}
                 </Badge>
               </div>
 
               {/* Tenants count */}
-              <div className="col-span-1 text-sm text-muted-foreground">
+              <div className="text-center text-sm text-muted-foreground">
                 {item.tenantIds
                   ? `${item.tenantIds.split(",").filter(Boolean).length} tenant(s)`
                   : "—"}
               </div>
 
               {/* Environment */}
-              <div className="col-span-1">
+              <div className="flex justify-center">
                 <Badge
                   variant="outline"
                   className="text-xs uppercase tracking-wide"
@@ -395,7 +472,7 @@ export default function SystemMaintenancePage() {
               </div>
 
               {/* Actions — triple dot */}
-              <div className="col-span-1 flex justify-end">
+              <div className="flex justify-center">
                 <ActionMenu
                   onEdit={() => handleEdit(item)}
                   onDelete={() => handleDeleteClick(item)}
@@ -532,8 +609,9 @@ export default function SystemMaintenancePage() {
             {form.startDatetime &&
               form.endDatetime &&
               calcDowntime(form.startDatetime, form.endDatetime) && (
-                <div className="px-3 py-2 bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800 rounded-md text-sm text-orange-700 dark:text-orange-400 font-medium">
-                  ⏱ Auto-calculated downtime:{" "}
+                <div className="flex items-center gap-2 px-3 py-2 bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800 rounded-md text-sm text-orange-700 dark:text-orange-400 font-medium">
+                  <Clock className="h-4 w-4 flex-shrink-0" />
+                  <span>Downtime:</span>
                   {calcDowntime(form.startDatetime, form.endDatetime)}
                 </div>
               )}
@@ -573,7 +651,12 @@ export default function SystemMaintenancePage() {
                   <span className="font-semibold">{form.environment}</span>
                 </div>
               ) : (
-                <div className="border border-input rounded-md max-h-48 overflow-y-auto divide-y divide-border">
+                <div className="border border-input rounded-md max-h-48 overflow-auto divide-y divide-border">
+                  <div className="grid min-w-[42rem] grid-cols-[auto_minmax(12rem,1fr)_minmax(18rem,auto)] items-center gap-3 px-4 py-2 bg-slate-50 dark:bg-slate-900/50 text-xs font-medium text-muted-foreground">
+                    <div></div>
+                    <div>Tenant Name</div>
+                    <div className="text-right">Tenant ID</div>
+                  </div>
                   {tenants.map((t) => {
                     const selected = form.tenantIds
                       ?.split(",")
@@ -582,7 +665,7 @@ export default function SystemMaintenancePage() {
                     return (
                       <div
                         key={t.tenantId}
-                        className={`flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-900/20 ${selected ? "bg-slate-900 dark:bg-slate-100 hover:bg-slate-900" : ""}`}
+                        className={`grid min-w-[42rem] grid-cols-[auto_minmax(12rem,1fr)_minmax(18rem,auto)] items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-900/20 ${selected ? "bg-slate-900 dark:bg-slate-100 hover:bg-slate-900" : ""}`}
                         onClick={() => toggleTenant(t.tenantId)}
                       >
                         <div
@@ -596,14 +679,16 @@ export default function SystemMaintenancePage() {
                           )}
                         </div>
                         <span
-                          className={`text-sm font-medium flex-1 ${selected ? "text-white dark:text-slate-900" : ""}`}
+                          className={`min-w-0 truncate text-sm font-medium ${selected ? "text-white dark:text-slate-900" : ""}`}
+                          title={t.companyName}
                         >
                           {t.companyName}
                         </span>
                         <span
-                          className={`text-xs ${selected ? "text-slate-400" : "text-muted-foreground"}`}
+                          className={`min-w-[18rem] break-all text-right font-mono text-xs ${selected ? "text-slate-400" : "text-muted-foreground"}`}
+                          title={t.tenantId}
                         >
-                          {t.tenantId.substring(0, 8)}...
+                          {t.tenantId}
                         </span>
                       </div>
                     );
