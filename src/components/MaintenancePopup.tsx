@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Wrench,
   X,
@@ -6,7 +6,7 @@ import {
   AlertTriangle,
   CheckCircle2,
 } from "lucide-react";
-import axios from "axios";
+import { fetchActiveMaintenanceForTenant } from "@/services/controllers/maintenanceApi";
 
 interface Maintenance {
   id: number;
@@ -15,22 +15,28 @@ interface Maintenance {
   startDatetime: string;
   endDatetime: string;
   impact: string;
+  impactLevel?: string;
+  status?: string;
 }
 
 export default function MaintenancePopup({ tenantId }: { tenantId: string }) {
   const [maintenance, setMaintenance] = useState<Maintenance | null>(null);
   const [show, setShow] = useState(false);
 
-  useEffect(() => {
-    fetchMaintenance();
-  }, []);
-
-  const fetchMaintenance = async () => {
+  const fetchMaintenance = useCallback(async () => {
     try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/v1/onboarding/maintenance/active/${tenantId}`,
-      );
-      const list = res.data.data;
+      const res = await fetchActiveMaintenanceForTenant(tenantId);
+      const payload = res?.data || res;
+      const list = Array.isArray(payload)
+        ? payload
+        : Array.isArray(payload?.result)
+          ? payload.result
+          : Array.isArray(payload?.data?.result)
+            ? payload.data.result
+            : Array.isArray(payload?.data)
+              ? payload.data
+              : [];
+
       if (list && list.length > 0) {
         const dismissed = sessionStorage.getItem(
           `maintenance_dismissed_${list[0].id}`,
@@ -40,8 +46,14 @@ export default function MaintenancePopup({ tenantId }: { tenantId: string }) {
           setShow(true);
         }
       }
-    } catch (e) {}
-  };
+    } catch (e) {
+      console.error("Failed to fetch active maintenance:", e);
+    }
+  }, [tenantId]);
+
+  useEffect(() => {
+    if (tenantId) fetchMaintenance();
+  }, [fetchMaintenance, tenantId]);
 
   const handleDontShow = () => {
     if (maintenance) {
@@ -109,7 +121,7 @@ export default function MaintenancePopup({ tenantId }: { tenantId: string }) {
               Impact:
             </span>
             <span className="text-[13px] font-bold text-orange-900 ml-1">
-              {maintenance.impact}
+              {maintenance.impact || maintenance.impactLevel || "Maintenance"}
             </span>
           </div>
         </div>
