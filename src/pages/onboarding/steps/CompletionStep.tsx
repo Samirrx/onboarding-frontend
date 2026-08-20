@@ -70,7 +70,7 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
         });
       } else {
         const errorMessage =
-          response?.status === 403
+          response?.statusCode === 403
             ? "You do not have permission to create a tenant. Please contact an administrator."
             : response?.message ||
               response?.error ||
