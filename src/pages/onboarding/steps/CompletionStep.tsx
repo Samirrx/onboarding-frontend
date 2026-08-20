@@ -70,11 +70,13 @@ export function CompletionStep({ formData, onBack }: CompletionStepProps) {
         });
       } else {
         const errorMessage =
-          response?.message ||
-          response?.error ||
-          response?.data?.message ||
-          response?.data?.error ||
-          "Tenant creation failed. Please try again later.";
+          response?.status === 403
+            ? "You do not have permission to create a tenant. Please contact an administrator."
+            : response?.message ||
+              response?.error ||
+              response?.data?.message ||
+              response?.data?.error ||
+              "Tenant creation failed. Please try again later.";
         notify.error(errorMessage, {
           autoClose: 5000,
         });
