@@ -264,17 +264,34 @@ const AiCredits: React.FC = () => {
                   </TableCell>
                   <TableCell className="text-right">
                     {/* Negative remaining is real and worth showing rather than clamping: a turn
-                        can overshoot the balance, and unprovisioned tenants show spend against a
-                        zero grant. Hiding it would hide exactly the tenants needing attention. */}
+                        can overshoot the balance, and an unfunded tenant shows spend against a zero
+                        grant. Hiding it would hide exactly the tenants needing attention.
+
+                        A tenant that has never been granted anything and never spent anything is
+                        NOT exhausted - nothing was ever there to run out. Calling it exhausted
+                        reads as "they burned through their credits" and points a super admin at
+                        the wrong situation on the very screen where funding is decided. */}
                     <span
                       className={
-                        row.creditsRemaining <= 0 ? 'text-destructive font-medium' : undefined
+                        row.creditsGranted > 0 && row.creditsRemaining <= 0
+                          ? 'text-destructive font-medium'
+                          : undefined
                       }
                       title={formatUsd(row.creditsRemaining)}
                     >
                       {formatCredits(row.creditsRemaining)}
                     </span>
-                    {row.creditsRemaining <= 0 && (
+                    {row.creditsGranted === 0 && row.creditsUsed === 0 && (
+                      <Badge variant="secondary" className="ml-2">
+                        Not funded
+                      </Badge>
+                    )}
+                    {row.creditsGranted === 0 && row.creditsUsed > 0 && (
+                      <Badge variant="destructive" className="ml-2">
+                        Unfunded usage
+                      </Badge>
+                    )}
+                    {row.creditsGranted > 0 && row.creditsRemaining <= 0 && (
                       <Badge variant="destructive" className="ml-2">
                         Exhausted
                       </Badge>
