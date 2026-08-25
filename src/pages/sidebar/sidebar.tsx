@@ -55,6 +55,10 @@ const data = {
         {
           title: 'System Maintenance',
           url: '/system-maintenance'
+        },
+        {
+          title: 'AI Credits',
+          url: '/ai-credits'
         }
       ]
     }

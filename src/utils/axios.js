@@ -116,7 +116,7 @@ const refreshAuthToken = async () => {
      console.error("Token refresh failed:", error);
     
     // Clear tokens on auth failure
-    if (error.response?.status === 401 || error.response?.status === 403) {
+    if (error.response?.status === 401) {
       console.log("Clearing tokens due to auth failure");
       localStorage.removeItem("auth-token");
     }
@@ -163,7 +163,7 @@ axios.interceptors.request.use(
         return addAuthHeader(config, newTokenDetail.token);
       } catch (error) {
         processQueue(error, null);
-        if (error.response?.status === 401 || error.response?.status === 403) {
+        if (error.response?.status === 401) {
           localStorage.clear();
           window.location.href = "/login";
         }
@@ -199,11 +199,11 @@ axios.interceptors.response.use(
         status: false,
       });
     }
-    // Handle 401/403 errors - token might be invalid
-    if ((error.response.status === 401 || error.response.status === 403) &&
+    // A 401 may mean an expired token. A 403 means the user is authenticated
+    if (error.response.status === 401 &&
         !originalRequest._retry &&
         !originalRequest.url?.includes('/user/refresh-token')) {
-      console.log("Received 401/403, attempting token refresh");
+      console.log("Received 401, attempting token refresh");
       originalRequest._retry = true;
 
       if (isRefreshing) {
@@ -228,7 +228,7 @@ axios.interceptors.response.use(
           return axios(originalRequest);
         } catch (refreshError) {
           processQueue(refreshError, null);
-          if (refreshError.response?.status === 401 || refreshError.response?.status === 403) {
+          if (refreshError.response?.status === 401) {
             localStorage.clear();
             window.location.href = "/login";
           }
@@ -255,7 +255,7 @@ const errorHandler = (error) => {
     window.location.href = "/maintenance";
   }
 
-  if (!response || [403, 401, 302].includes(response.status)) {
+  if (!response || [401, 302].includes(response.status)) {
     localStorage.removeItem("auth-token");
     window.location.href = "/login";
     return {
@@ -268,6 +268,8 @@ const errorHandler = (error) => {
   return {
     ...response?.data,
     message: response?.data?.message || "Something went wrong",
+    status: false,
+    statusCode: response.status,
   };
 };
 

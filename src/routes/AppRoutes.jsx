@@ -7,6 +7,7 @@ import SystemMaintenancePage from '@/pages/onboarding/SystemMaintenance';
 import Login from '@/pages/Login/login';
 import Signup from '@/pages/Signup/signup';
 import TenantList from '@/pages/TenantList/tenant-list';
+import AiCredits from '@/pages/AiCredits/ai-credits';
 // import Home from '../pages/Home';
 // import About from '../pages/About';
 
@@ -14,6 +15,7 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<TenantList />} />
+      <Route path="/ai-credits" element={<AiCredits />} />
       <Route path="/onboarding-flow" element={<OnboardingFlow />} />
       <Route path="/system-maintenance" element={<SystemMaintenancePage />} />
       <Route path="/login" element={<Login />} />
