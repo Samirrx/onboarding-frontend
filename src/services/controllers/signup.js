@@ -29,7 +29,7 @@ export const createTenantAccount = async (formData) => {
 export const verifyAuthToken = async (token, tenantId) => {
   const response = await makeHttpCall({
     method: 'GET',
-    url: `/auth`,
+    url: `/api/v1/auth`,
     headers: {
       'Authorization': `Bearer ${token}`,
       'X-TenantID': tenantId,

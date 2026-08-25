@@ -4,7 +4,30 @@ import { getTimezone, getTimezoneOffset } from "../utils/helpers";
 import { notify } from "../hooks/toastUtils";
 
 const getApiEndpoint = () => {
-  return "https://onboarding-api.dglide.com";
+  const hostName = window.location.hostname;
+
+  // NOTE: no /api/v1 suffix here; call sites include /api/v1 where the backend exposes it.
+  if (hostName === "localhost" || hostName === "127.0.0.1") {
+    return "http://localhost:9090";
+  }
+
+  if (hostName === "prod.dglide.com" || hostName === "onboarding.dglide.com") {
+    return "https://prod-api.dglide.com";
+  }
+  if (hostName === "mahb.dglide.com" || hostName === "dev.ops-beat.com") {
+    return "https://mahb-api.dglide.com";
+  }
+  if (hostName === "preprod.dglide.com") {
+    return "https://preprod-api.dglide.com";
+  }
+  if (hostName === "app.dglide.com") {
+    return "https://app-api.dglide.com";
+  }
+  if (hostName === "demo.dglide.com") {
+    return "https://demo-api.dglide.com";
+  }
+
+  return "https://dev-api.dglide.com";
 };
 
 // Global variables to manage token refresh state
