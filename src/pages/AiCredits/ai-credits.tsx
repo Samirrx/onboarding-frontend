@@ -1,3 +1,4 @@
+import { useScopedEnvironment } from "@/hooks/environment-scope";
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -72,7 +73,7 @@ interface TenantCredit {
  * them to 50000" when they already hold 50000 would silently double it.
  */
 const AiCredits: React.FC = () => {
-  const [env, setEnv] = useState('dev');
+  const [env, setEnv, currentOnly] = useScopedEnvironment('dev');
   const [rows, setRows] = useState<TenantCredit[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
@@ -192,7 +193,7 @@ const AiCredits: React.FC = () => {
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <Select value={env} onValueChange={setEnv}>
+        <Select value={env} onValueChange={setEnv} disabled={currentOnly}>
           <SelectTrigger className="w-40">
             <SelectValue placeholder="Environment" />
           </SelectTrigger>

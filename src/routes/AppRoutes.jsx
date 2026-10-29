@@ -1,6 +1,7 @@
 // src/routes/AppRoutes.jsx
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { EnvironmentScopeProvider } from '@/hooks/environment-scope';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
 import OnboardingFlow from '@/pages/onboarding/OnboardingFlow';
 import SystemMaintenancePage from '@/pages/onboarding/SystemMaintenance';
@@ -12,7 +13,8 @@ import AiCredits from '@/pages/AiCredits/ai-credits';
 // import About from '../pages/About';
 
 const AppRoutes = () => {
-  return (
+  const location = useLocation();
+  const routes = (
     <Routes>
       <Route path="/" element={<TenantList />} />
       <Route path="/ai-credits" element={<AiCredits />} />
@@ -23,6 +25,8 @@ const AppRoutes = () => {
       <Route path="/Signup" element={<Navigate to="/signup" replace />} />
     </Routes>
   );
+  return ['/login', '/signup', '/Signup'].includes(location.pathname)
+    ? routes : <EnvironmentScopeProvider>{routes}</EnvironmentScopeProvider>;
 };
 
 export default AppRoutes;

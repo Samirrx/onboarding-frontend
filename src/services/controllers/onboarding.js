@@ -120,3 +120,8 @@ export const setTenantAiEnabled = async (tenantId, env, aiEnabled) => {
   });
   return response;
 };
+
+export const fetchCreationPolicy = () => makeHttpCall({
+  method: "GET",
+  url: "/api/v1/onboarding/creation-policy"
+});

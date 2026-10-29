@@ -1,5 +1,7 @@
 "use client";
 
+import { useEnvironmentScope } from "@/hooks/environment-scope";
+
 import { useState, useEffect, useRef } from "react";
 import {
   Plus,
@@ -178,6 +180,7 @@ function ActionMenu({
 }
 
 export default function SystemMaintenancePage() {
+  const scope = useEnvironmentScope();
   const [maintenanceList, setMaintenanceList] = useState<Maintenance[]>([]);
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -199,7 +202,7 @@ export default function SystemMaintenancePage() {
     endDatetime: "",
     status: "SCHEDULED",
     tenantIds: "",
-    environment: "",
+    environment: scope.currentEnvironmentOnly ? scope.environment : "",
     impactLevel: "",
   };
   const [form, setForm] = useState<Maintenance>(emptyForm);
@@ -214,7 +217,8 @@ export default function SystemMaintenancePage() {
       const res = await fetchAllMaintenance();
       const list = res?.result || res?.data || [];
       setMaintenanceList(
-        list.map((item: Maintenance) => ({
+        list.filter((item: Maintenance) => !scope.currentEnvironmentOnly ||
+          item.environment?.trim().toLowerCase() === scope.environment).map((item: Maintenance) => ({
           ...item,
           status: normalizeMaintenanceStatus(item.status),
         })),
@@ -227,6 +231,7 @@ export default function SystemMaintenancePage() {
   };
 
   const loadTenants = async (env: string) => {
+    if (scope.currentEnvironmentOnly) env = scope.environment;
     if (!env) {
       setTenants([]);
       return;
@@ -276,6 +281,7 @@ export default function SystemMaintenancePage() {
     try {
       const payload = {
         ...form,
+        environment: scope.currentEnvironmentOnly ? scope.environment : form.environment,
         status: normalizeMaintenanceStatus(form.status),
       };
 
@@ -297,6 +303,7 @@ export default function SystemMaintenancePage() {
     setEditItem(item);
     setForm({
       ...item,
+      environment: scope.currentEnvironmentOnly ? scope.environment : item.environment,
       startDatetime: toDateTimeInputValue(item.startDatetime),
       endDatetime: toDateTimeInputValue(item.endDatetime),
       status: normalizeMaintenanceStatus(item.status),
@@ -361,6 +368,7 @@ export default function SystemMaintenancePage() {
             setEditItem(null);
             setForm(emptyForm);
             setTenants([]);
+            if (scope.currentEnvironmentOnly) loadTenants(scope.environment);
           }}
         >
           <Plus className="h-5 w-5" />
@@ -514,6 +522,7 @@ export default function SystemMaintenancePage() {
                 </label>
                 <select
                   className="w-full border border-input rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring bg-background"
+                  disabled={scope.currentEnvironmentOnly}
                   value={form.environment}
                   onChange={(e) => {
                     const env = e.target.value;

@@ -1,6 +1,7 @@
 "use client";
 
 import type React from "react";
+import { useEnvironmentScope } from "@/hooks/environment-scope";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -39,7 +40,14 @@ export function CompanyDetailsStep({
   const [companySize, setcompanySize] = useState(
     formData.companySize || "1-10"
   );
-  const [environment, setEnvironment] = useState(formData.environment || "");
+  const scope = useEnvironmentScope();
+  const currentOnly = scope.currentEnvironmentOnly;
+  const environmentLabel = ["Dev", "Demo", "Preprod", "App"].find(
+    (item) => item.toLowerCase() === scope.environment
+  ) || "";
+  const [selectedEnvironment, setSelectedEnvironment] = useState(formData.environment || "");
+  const environment = currentOnly ? environmentLabel : selectedEnvironment;
+  const setEnvironment = (value: string) => { if (!currentOnly) setSelectedEnvironment(value); };
   const [email, setEmail] = useState(formData.email || "");
   const [phoneNumber, setPhoneNumber] = useState(formData.phoneNumber || "");
   const [instanceType, setInstanceType] = useState(formData.instanceType || "");
@@ -224,7 +232,7 @@ export function CompanyDetailsStep({
           <Label htmlFor="environment">
             Environment <span className="text-red-500">*</span>
           </Label>
-          <Select value={environment} onValueChange={setEnvironment}>
+          <Select value={environment} onValueChange={setEnvironment} disabled={currentOnly}>
             <SelectTrigger
               id="environment"
               className={
@@ -241,6 +249,7 @@ export function CompanyDetailsStep({
               ))}
             </SelectContent>
           </Select>
+          {currentOnly && <p className="text-sm text-muted-foreground">Tenants are created in this environment.</p>}
           {errors.environment && (
             <p className="text-sm text-red-500">{errors.environment}</p>
           )}

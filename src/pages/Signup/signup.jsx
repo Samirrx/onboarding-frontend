@@ -163,6 +163,8 @@ export default function Signup() {
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
         const tenantId = data.result.tenantId;
+        const environment = ["dev", "demo", "preprod", "app"].includes(data.result.environment)
+          ? data.result.environment : "app";
 
         console.log("✅ Signup successful, redirecting to login...");
         
@@ -170,7 +172,7 @@ export default function Signup() {
         
         // Navigate to login with credentials in URL
         setTimeout(() => {
-          window.location.href = `https://app.dglide.com/login?user=${encodeURIComponent(
+          window.location.href = `https://${environment}.dglide.com/login?user=${encodeURIComponent(
             formData.email
           )}&tenant=${encodeURIComponent(tenantId)}&pass=${encodeURIComponent(
             formData.password

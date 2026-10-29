@@ -1,5 +1,7 @@
 "use client";
 
+import { useScopedEnvironment } from "@/hooks/environment-scope";
+
 import { useEffect, useState, useRef } from "react";
 import {
   Calendar,
@@ -88,7 +90,7 @@ export default function TenantDashboard() {
   const navigate = useNavigate();
   const location = useLocation();
   const { state } = location;
-  const [env, setEnv] = useState(state?.environment.toLowerCase() || "dev");
+  const [env, setEnv, currentOnly] = useScopedEnvironment(state?.environment?.toLowerCase() || "dev");
   const [isActive, setIsActive] = useState(false);
   const [isImageUploadModalOpen, setIsImageUploadModalOpen] = useState(false);
   const [imgSrc, setImgSrc] = useState<string>("");
@@ -395,6 +397,7 @@ export default function TenantDashboard() {
           </div>
           <div className="flex items-center gap-2">
             <Select
+              disabled={currentOnly}
               value={env}
               onValueChange={(value) => {
                 setEnv(value);
